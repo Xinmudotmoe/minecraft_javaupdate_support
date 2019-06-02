@@ -15,7 +15,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Environment (please complete the following information):**
  - OS: [e.g. Windows 10 64Bit]
- - JavaVersion: [e.g. 13-ea+21 64Bit]
+ - JVMVersion: [e.g. 13-ea+21 64Bit]
  - MinecraftVersion: [e.g. 1.12.2]
  - MinecraftForgeVersion: [e.g. 1.12.2-14.23.5.2815]
 
@@ -26,6 +26,6 @@ If applicable, add screenshots to help explain your problem.
  - OtherModName: [If there is a log and there [System Details]. you can not provide this.]
 
 **Additional context**
-Add any other context about the problem here.
+Add any other context about the problem here. For example, pictures, videos, descriptions, etc.
 
-### If you are Chinese, you can use Chinese all the time.
+## If your native language is not English, please also paste your native language text to prevent semantic changes caused by multiple translations.
