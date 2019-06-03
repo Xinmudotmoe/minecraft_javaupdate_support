@@ -1,7 +1,9 @@
 # minecraft_javaupdate_support
-This is a minecraft module dedicated to running the old versions of MinecraftForge and Mods in new Java. Part of the inspiration comes from https://github.com/AmadeusSystems/Alchemy.
+[中文](README-zh_cn.md)
 
-This program relies heavily on the [Unsafe](https://github.com/unofficial-openjdk/openjdk/blob/jdk/jdk/src/jdk.unsupported/share/classes/sun/misc/Unsafe.java)package. It is worth mentioning that OpenJDK internal mail has indicated that it will remove Unsafe, then I may need to make a major change. (Who knows. A lot of efficient libraries rely on Unsafe. The authors of those libraries are obviously much more busy than me.)
+This is a minecraft module dedicated to running the old versions of MinecraftForge and Mods in new Java. Part of the inspiration comes from [AmadeusSystems/Alchemy](https://github.com/AmadeusSystems/Alchemy).
+
+This program relies heavily on the [Unsafe](https://github.com/unofficial-openjdk/openjdk/blob/jdk/jdk/src/jdk.unsupported/share/classes/sun/misc/Unsafe.java) package. It is worth mentioning that OpenJDK internal mail has indicated that it will remove Unsafe, then I may need to make a major change. (Who knows. A lot of efficient libraries rely on Unsafe. The authors of those libraries are obviously much more busy than me.)
 ## How To Install the agent.
 1. Download the compiled binary.
 2. Copy to the .minecraft folder
