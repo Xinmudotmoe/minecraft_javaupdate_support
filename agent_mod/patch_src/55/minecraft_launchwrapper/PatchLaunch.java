@@ -33,7 +33,7 @@ public class PatchLaunch implements ClassFileTransformer{
             ConstantPoolGen cpg=cg.getConstantPool();
             int li2=cpg.addMethodref("moe/xinmu/minecraft_agent/Utils","getClassLoaderURLs","()[Ljava/net/URL;");
             int li3=cpg.addFieldref("net/minecraft/launchwrapper/Launch","classLoader","Lnet/minecraft/launchwrapper/LaunchClassLoader;");
-            int li4=cpg.addMethodref("net/minecraft/launchwrapper/LaunchClassLoader","addTransformerExclusion","(Ljava/lang/String;)V");
+            int li4=cpg.addMethodref("net/minecraft/launchwrapper/LaunchClassLoader","addClassLoaderExclusion","(Ljava/lang/String;)V");
             Method m=cg.containsMethod("<init>","()V");
             if(m.isPrivate()){
                 m.isPrivate(false);

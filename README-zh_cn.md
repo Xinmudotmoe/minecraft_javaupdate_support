@@ -21,7 +21,7 @@
 这个项目直接依赖于 [InMemoryJavaCompiler](https://github.com/trung/InMemoryJavaCompiler), 所以使用 [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) 作为目标协议.
 ## 如何构建项目
 您可以使用配置gradle进行编译。
-或导入到任何Ide或使用Javac命令直接编译。
+或导入到任何Ide亦或是使用Javac命令直接编译。
 
 agent本体不依赖于JVM以外的库。
 
@@ -66,7 +66,7 @@ agent本体不依赖于JVM以外的库。
 
 其他模组会尽力支持他们，但我不能保证他们的稳定性。 如果遇到稳定性和差异，请发布issus。
 ### Cancel support
-如果您不希望我以某种方式修改您的模组，请提交问题。 我将删除相应的代码。
+如果您不希望我以某种方式修改您的模组，请发布issus。 我将删除相应的代码。
 
 如果您不想在新环境中运行mod，可以将以下代码放在mod中并确保它将运行（如调用）。
 

@@ -6,5 +6,4 @@
 
 ## Runtime Need This(Placed in extendsLibs)
 
-[Javax Annotation API](https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api)
- License: GPL 2.0
+[Javax Annotation API](https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api) License: GPL 2.0

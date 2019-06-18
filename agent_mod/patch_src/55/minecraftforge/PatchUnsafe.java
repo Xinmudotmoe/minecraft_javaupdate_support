@@ -14,7 +14,10 @@ import moe.xinmu.minecraft_agent.*;
 import moe.xinmu.minecraft_agent.annotation.*;
 import javassist.*;
 @Deprecated
-@TargetClass("net/minecraftforge/common/util/EnumHelper")
+@TargetClass(
+//      "net.minecraftforge.common.util.EnumHelper",
+        "net.minecraftforge.fml.common.registry.ItemStackHolderRef"
+)
 public class PatchUnsafe implements ClassFileTransformer{
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {

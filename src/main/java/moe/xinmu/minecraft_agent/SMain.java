@@ -1,16 +1,11 @@
 package moe.xinmu.minecraft_agent;
 
-import javassist.ClassPool;
-import javassist.CtClass;
 import moe.xinmu.minecraft_agent.annotation.$Main;
 import moe.xinmu.minecraft_agent.annotation.Main;
 import moe.xinmu.minecraft_agent.annotation.TargetClass;
 
-import java.io.ByteArrayInputStream;
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.InvocationTargetException;
-import java.security.ProtectionDomain;
 
 public class SMain implements $Main {
     public void main(AgentModClassLoader amcl) {
@@ -37,6 +32,5 @@ public class SMain implements $Main {
                 e.printStackTrace(System.err);
             }
         }
-
     }
 }

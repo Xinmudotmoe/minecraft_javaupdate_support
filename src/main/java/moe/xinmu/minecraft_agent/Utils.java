@@ -29,18 +29,33 @@ public class Utils {
             throw new NullPointerException();
         return unsafe;
     }
-    public static boolean isnewjdk=false;
+    private static boolean isnewjdk=false;
+    private static boolean isnewclassloader=false;
+    private static boolean init=false;
+    static {
+        init();
+    }
+    public static boolean isNewJDK(){
+        return isnewjdk;
+    }
     public static void init() {
-        Log.i("Utils","Init Start.");
-        try{
-            Class.forName("java.lang.Module");
-            isnewjdk=true;
-            Log.i("Utils","NewJDK is True.");
-        }catch (ClassNotFoundException ignored){
-            Log.i("Utils","NewJDK is False.");
+        if(!init) {
+            Log.i("Utils", "Init Start.");
+            try {
+                Class.forName("java.lang.Module");
+                isnewjdk = true;
+                Log.i("Utils", "NewJDK is True.");
+            } catch (ClassNotFoundException ignored) {
+                Log.i("Utils", "NewJDK is False.");
+            }
+            ClassLoader cl = ClassLoader.getSystemClassLoader();
+            if (isnewclassloader = !(cl instanceof URLClassLoader))
+                Log.i("Utils", "NewClassLoader is True.");
+            else
+                Log.i("Utils", "NewClassLoader is False.");
+            Log.i("Utils", "Init End.");
+            init=true;
         }
-        Log.i("Utils","Init End.");
-
     }
     //In new jdk. if you not add "--add-opens java.base/jdk.internal.loader=ALL-UNNAMED"
     //Then you need to be able to set accessible.
@@ -58,21 +73,21 @@ public class Utils {
     }
     private static void setAccessibleDependentOnUnsafe(AccessibleObject ao,boolean flag){
         getUnsafe().putBoolean(ao, is64Bit() ? 12 : 8, flag);
-        Log.w("setAccessibleDependentOnUnsafe",ao.toString());
+        Log.w("Utils setAccessibleDependentOnUnsafe",ao.toString());
     }
     public static boolean is64Bit(){
         return System.getProperty("os.arch").contains("64");
     }
 
     public static URL[] getClassLoaderURLs(){
-        if(isnewjdk){
+        if(isnewclassloader){
             return Latest.getClassLoaderURLsLatest();
         }else{
             return Legacy.getClassLoaderURLsLegacy();
         }
     }
     public static void addClassLoaderURLs(URL url){
-        if(isnewjdk) {
+        if(isnewclassloader) {
             Latest.addClassLoaderURLsLatest(url);
         }else{
             Legacy.addClassLoaderURLsLegacy(url);
@@ -113,7 +128,7 @@ public class Utils {
                 //public Set<String> Module.getPackages()
                 final Method module_getpackages=Objects.requireNonNull(module_class.getMethod("getPackages"));
 
-                //package-private void implAddOpensToAllUnnamed(String)
+                //package-private void java.lang.Module.implAddOpensToAllUnnamed(String)
                 final Method module_impladdopenstoallunnamed=Objects.requireNonNull(module_class.getDeclaredMethod("implAddOpensToAllUnnamed",String.class));
                 // package-private to public
                 Utils.setAccessible(module_impladdopenstoallunnamed,true);
@@ -157,12 +172,12 @@ public class Utils {
     //Old-style processing method.
     private static final class Legacy{
         private static URL[] getClassLoaderURLsLegacy(){
-            final URLClassLoader ucl = (URLClassLoader) Utils.class.getClassLoader();
+            final URLClassLoader ucl = (URLClassLoader) ClassLoader.getSystemClassLoader();
             return ucl.getURLs();
         }
         private static void addClassLoaderURLsLegacy(URL url){
             try{
-                final URLClassLoader ucl = (URLClassLoader) Utils.class.getClassLoader();
+                final URLClassLoader ucl = (URLClassLoader) ClassLoader.getSystemClassLoader();
                 Method method=URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
                 setAccessible(method,true);
                 method.invoke(ucl,url);
@@ -178,7 +193,7 @@ public class Utils {
         private static void initLatest(){
             try {
                 //jdk.internal.loader.ClassLoaders.AppClassLoader
-                ClassLoader cl=Utils.class.getClassLoader();
+                ClassLoader cl=ClassLoader.getSystemClassLoader();
                 Class<?> classLoader=cl.getClass();
                 //jdk.internal.loader.ClassLoaders.AppClassLoader.ucp type:jdk.internal.loader.URLClassPath
                 Field field=classLoader.getDeclaredFields()[0];

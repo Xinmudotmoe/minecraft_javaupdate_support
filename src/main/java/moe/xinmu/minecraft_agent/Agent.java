@@ -12,7 +12,5 @@ public class Agent {
         classLoader=new AgentModClassLoader();
         inst.addTransformer(classLoader.getTransformer());
         classLoader.init();
-        inst.addTransformer(classLoader.getTransformer());
-        System.out.println(inst);
     }
 }

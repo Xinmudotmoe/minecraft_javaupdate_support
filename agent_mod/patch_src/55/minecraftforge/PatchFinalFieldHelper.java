@@ -18,7 +18,6 @@ public class PatchFinalFieldHelper implements ClassFileTransformer{
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try{
-            System.out.println("Modify Action.");
             JavaClass jc=new ClassParser(new ByteArrayInputStream(classfileBuffer),className).parse();
             ClassGen cg=new ClassGen(jc);
             ConstantPoolGen cpg=cg.getConstantPool();

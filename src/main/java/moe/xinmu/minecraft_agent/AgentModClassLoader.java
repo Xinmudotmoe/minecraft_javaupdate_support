@@ -9,6 +9,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationHandler;
+import java.net.URL;
 import java.security.ProtectionDomain;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,7 +65,6 @@ public class AgentModClassLoader {
     }
     public static final class SecondaryClassLoader extends ZipsClassLoader{
         private Map<String, CompiledCode> customCompiledCode = new ConcurrentHashMap<>();
-
         private static List<String> checkraw=Arrays.asList(
                 // Allow most jdk classes to be accessible
                 "java.",
@@ -88,16 +88,16 @@ public class AgentModClassLoader {
 
         private static List<String> reversecheck=Arrays.asList(
                 //By classifying the classloader, all classes are loaded in the following order.
+                //          BootClassLoader
                 // SecondaryClassLoader(InMemoryCompiler)
                 // SecondaryClassLoader(ZipsClassLoader)
-                //          BootClassLoader
                 //        PlatformClassLoader
                 //          AppClassLoader
                 //Allow the following classes to take precedence over the JVM class loading mechanism
                 //Objects constructed by different class loaders cannot be converted
                 // like this
-                //  SecondaryClassLoader(InMemoryCompiler)
                 //          BootClassLoader
+                //  SecondaryClassLoader(InMemoryCompiler)
                 //        PlatformClassLoader
                 //          AppClassLoader
                 //  SecondaryClassLoader(ZipsClassLoader)
@@ -144,7 +144,7 @@ public class AgentModClassLoader {
                     e.printStackTrace();
                 }
             }
-
+            imjc.ignoreWarnings();
             try {
                 imjc.compileAll();
             } catch (Exception e) {
@@ -192,8 +192,8 @@ public class AgentModClassLoader {
         }
 
         @Override
-        public Class<?> loadClass(String name) throws ClassNotFoundException {
-            return findClass(name);
+        public URL getResource(String resName) {
+            return super.getResource(resName);//TODO
         }
         private Class<?> defineClass(String name, byte[] b) throws ClassFormatError {
             return defineClass(name, b, 0, b.length);

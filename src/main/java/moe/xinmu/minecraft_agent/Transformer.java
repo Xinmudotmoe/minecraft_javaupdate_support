@@ -38,7 +38,7 @@ public class Transformer  implements ClassFileTransformer {
                     byte[] by=c.transform(loader,className,classBeingRedefined,protectionDomain,a);
                     if(!(by==null||by.length<10))
                         if(!Utils.equalsLByte(classfileBuffer,by)){
-                            System.out.println("Change "+className+" by "+c.getClass().getName());
+                            System.out.println("Change "+className.replace("/",".")+" by "+c.getClass().getName());
                             return by;
                         }
                 }catch (IllegalClassFormatException ignored){
