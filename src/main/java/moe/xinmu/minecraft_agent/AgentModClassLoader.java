@@ -29,7 +29,7 @@ public class AgentModClassLoader {
         Arrays.stream(fs).filter(File::isFile).forEach(ff::add);
     }
     @SuppressWarnings("unchecked")
-    public void init() {
+    public void init(Instrumentation instrumentation) {
         List<File> ls=new ArrayList<>();
         findFile(new File("agent_mod"),ls);
         ArrayList<File> urlss=new ArrayList<>();
@@ -44,7 +44,7 @@ public class AgentModClassLoader {
         System.out.println(urlss);
         cl=new SecondaryClassLoader(urlss.toArray(new File[0]));
         try {
-            ((Class<$Main>)cl.loadClass(SMain.class.getName())).getConstructor().newInstance().main(this);
+            ((Class<$Main>)cl.loadClass(SMain.class.getName())).getConstructor().newInstance().main(this,instrumentation);
         }catch(Exception e){
             throw new Error(e);
         }

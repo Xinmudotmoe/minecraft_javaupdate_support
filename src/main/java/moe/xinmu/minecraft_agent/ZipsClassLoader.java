@@ -20,8 +20,8 @@ public class ZipsClassLoader extends SecureClassLoader {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
     }
+
     private Map<String,Class<?>> sc=new ConcurrentHashMap<>();
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
@@ -42,6 +42,7 @@ public class ZipsClassLoader extends SecureClassLoader {
     private Class<?> defineClass(String name, byte[] b) {
         return defineClass(name, b, 0, b.length);
     }
+
     private static byte[] readAllBytes(InputStream is)throws IOException{
         ByteArrayOutputStream ous = null;
         try {

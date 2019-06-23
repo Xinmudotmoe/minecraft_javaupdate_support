@@ -22,7 +22,7 @@ public class PatchMixinServiceLaunchWrapper implements ClassFileTransformer{
         "}";
     private static final String gcbbacl=
         "{\n" +
-            "java.lang.ClassLoader app=jdk.internal.loader.ClassLoaders.appClassLoader();\n"+
+            "java.lang.ClassLoader app=ClassLoader.getSystemClassLoader();\n"+
             "java.lang.String v1=$1.replace('.', '/');\n"+
             "java.lang.String v2=v1+\".class\";\n"+
             "byte[] b = app.getResourceAsStream(v2).readAllBytes();\n"+

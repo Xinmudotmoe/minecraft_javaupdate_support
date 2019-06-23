@@ -57,6 +57,8 @@ public class PatchFinalFieldHelper implements ClassFileTransformer{
                             "    $2=moe.xinmu.minecraft_agent.Utils.getUnsafe().staticFieldBase($1);\n" +
                             "}"+
                             "moe.xinmu.minecraft_agent.Utils.getUnsafe().putObjectVolatile($2,offset,$3);\n"+
+                            "moe.xinmu.minecraft_agent.Utils.setAccessible($1,true);"+
+                            "$1.get($2);"+
                         "}"
             );
             return ctClass.toBytecode();

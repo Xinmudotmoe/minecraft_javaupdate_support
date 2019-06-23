@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'moe.xinmu'
-version '0.03'
+version 'Dev'
 
 sourceCompatibility = 1.8
 
@@ -23,6 +23,8 @@ artifacts {
 jar {
     manifest{
         attributes 'Premain-Class':'moe.xinmu.minecraft_agent.Agent'
+        attributes 'Can-Retransform-Classes':'true'
+        attributes 'Can-Redefine-Classes':'true'
     }
 }
 

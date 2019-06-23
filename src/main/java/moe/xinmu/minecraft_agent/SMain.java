@@ -3,12 +3,12 @@ package moe.xinmu.minecraft_agent;
 import moe.xinmu.minecraft_agent.annotation.$Main;
 import moe.xinmu.minecraft_agent.annotation.Main;
 import moe.xinmu.minecraft_agent.annotation.TargetClass;
-
 import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 
 public class SMain implements $Main {
-    public void main(AgentModClassLoader amcl) {
+    public void main(AgentModClassLoader amcl, Instrumentation instrumentation) {
         String[] s=amcl.compile();
         ClassLoader cl=getClass().getClassLoader();
         for (String name:s) {
@@ -27,7 +27,7 @@ public class SMain implements $Main {
                             amcl.addClassFileTransformer(key,(ClassFileTransformer) o);
                 }
                 if(m!=null)
-                    (($Main)o).main(amcl);
+                    (($Main)o).main(amcl,instrumentation);
             }catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException | ClassCastException e){
                 e.printStackTrace(System.err);
             }
