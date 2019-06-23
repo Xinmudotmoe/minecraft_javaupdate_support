@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+}
+
+group 'moe.xinmu'
+version '0.04'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly fileTree("lib")
+    //You can add the library here.
+    //Then add code that needs to be debugged in the SMain method.
+    //The runtime does not look for libraries from the lib directory unless you add them to the agent_mod directory.
+}
+artifacts {
+    archives jar
+}
+jar {
+    manifest{
+        attributes 'Premain-Class':'moe.xinmu.minecraft_agent.Agent'
+        attributes 'Can-Retransform-Classes':'true'
+        attributes 'Can-Redefine-Classes':'true'
+    }
+}
+
+
+task runMc(type:JavaExec,dependsOn:jar){
+    def minecraftDir="";//add minecraftDir in this
+    workingDir minecraftDir
+    setMain "net.minecraft.launchwrapper.Launch"
+    jvmArgs ([
+        /*add jvm args in this*/
+        '-javaagent:'+jar.getArchivePath().getAbsolutePath(),
+    ])
+    classpath (
+        /*add class path in this*/
+    )
+    args(/*add args in this*/)
+}

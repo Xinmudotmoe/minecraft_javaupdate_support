@@ -1,0 +1,11 @@
+| ModName | Version | ClassName | Type | Signature | Method | Priority |
+| ------- | ------- | --------- | ---- | --------- | ------ | -------- |
+| VanillaFix | 1.0.10-99 | org.dimdev.utils.ModIdentifier | Method | ? | Fix | Low |
+| Forge | 14.23.5.2815 | net.minecraftforge.common.util.EnumHelper | Method | setup&()V; | ModifyUnsafe | Low |
+| Forge | 14.23.5.2815 | net.minecraftforge.fml.common.registry.ItemStackHolderRef | Class | net.minecraftforge.fml.common.registry.ItemStackHolderRef | ModifyUnsafe | Low |
+| VanillaFix | 1.0.10-99 | org.spongepowered.asm.lib.ClassReader | Method | \<init>&(BII)V | RemoveBinaryPatches | Low |
+| asm-all | 5.2 | org.objectweb.asm.ClassReader | Method | \<init>&(BII)V | RemoveBinaryPatches | Low |
+| launchwrapper | 1.12 | net.minecraft.launchwrapper.Launch | Method | \<init>&()V | BadRepair | Low |
+| VanillaFix | 1.0.10-99 | org.spongepowered.asm.service.mojang.MixinServiceLaunchWrapper | Method | getClassBytes(Ljava/lang/String;Ljava/lang/String;)[B | BadRepair | Low |
+| ChineseWorkshop | 1.2.5 | ? | ? | ? | Fix | High |
+| replaymod | 2.1.4 | ? | ? | ? | Fix | Low |
