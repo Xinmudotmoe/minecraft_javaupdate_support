@@ -33,4 +33,6 @@ build.gradle
 .classpath
 build/
 bin/
+bin
+out/
 *.properties

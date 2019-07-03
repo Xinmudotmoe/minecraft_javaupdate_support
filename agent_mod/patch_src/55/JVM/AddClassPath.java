@@ -7,7 +7,7 @@ import moe.xinmu.minecraft_agent.annotation.*;
 @Main
 public class AddClassPath implements $Main{
     public void main(AgentModClassLoader amcl){
-        File f=new File("agent_mod/extendLibs");
+        File f=new File(Utils.getAgent_dir()+"/extendLibs");
         if(f.isDirectory()){
             for (File ff:f.listFiles()) {
                 if(ff.getName().endsWith(".jar"))
