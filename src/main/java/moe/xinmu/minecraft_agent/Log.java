@@ -1,6 +1,5 @@
 package moe.xinmu.minecraft_agent;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,14 +23,14 @@ public final class Log {
     private static void init(){
         try {
             Properties prop=new Properties();
-            prop.load(new FileInputStream(new File("agent_mod/setting.properties")));
+            prop.load(new FileInputStream(new File(Utils.getAgent_dir()+"/setting.properties")));
             if(prop.containsKey("logfile")){
                 String log=prop.getProperty("logfile");
                 init(log);
                 i("LogInit",String.format("Find the target log file %s, the initialization is successful.",log));
             }
             else{
-                init("agent_mod/log.log");
+                init(Utils.getAgent_dir()+"/log.log");
                 i("LogInit","Use the default log file");
             }
         } catch (IOException er) {
@@ -49,8 +48,8 @@ public final class Log {
             log.addHandler(fileHandler);
         }
     }
-    /**è·å–è¿è¡Œæ—¶å †æ ˆä¿¡æ¯ï¼Œç”¨ä»¥è·å–ç±»æ–‡ä»¶ä¸è¡Œæ•°
-     *è·å–æœ€æ¥è¿‘è°ƒç”¨Logçš„ç±»çš„ä¿¡æ¯
+    /**»ñÈ¡ÔËĞĞÊ±¶ÑÕ»ĞÅÏ¢£¬ÓÃÒÔ»ñÈ¡ÀàÎÄ¼şÓëĞĞÊı
+     *»ñÈ¡×î½Ó½üµ÷ÓÃLogµÄÀàµÄĞÅÏ¢
      */
     private static String get(){
         return Arrays.stream(new Throwable().getStackTrace())

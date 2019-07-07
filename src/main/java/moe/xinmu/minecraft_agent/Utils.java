@@ -9,8 +9,8 @@ import java.util.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-@SuppressWarnings("deprecation")//Block warnings when compiling in Java8
-public class Utils {
+@SuppressWarnings("deprecation")//Block warnings when compiling in Java8. However, it did not take effect.
+public final class Utils {
     private static Unsafe unsafe;
     public static Unsafe getUnsafe() {
         if(unsafe!=null)
@@ -164,9 +164,17 @@ public class Utils {
             Log.i("OpenAllModule","Not NewJDK");
         }
     }
+
     public static int getJavaVersion(){
         return ((Double)(Double.parseDouble(System.getProperty("java.class.version")))).intValue();
     }
+
+    static String agent_dir="agent_mod";
+
+    public static String getAgent_dir() {
+        return agent_dir;
+    }
+
     //Old-style processing method.
     private static final class Legacy{
         private static URL[] getClassLoaderURLsLegacy(){

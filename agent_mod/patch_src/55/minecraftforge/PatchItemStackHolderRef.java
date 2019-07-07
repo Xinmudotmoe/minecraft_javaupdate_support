@@ -3,31 +3,31 @@ import java.io.*;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
-import java.util.Arrays;
 
-import org.apache.bcel.Const;
-import org.apache.bcel.Repository;
-import org.apache.bcel.classfile.*;
-import org.apache.bcel.generic.*;
-import moe.xinmu.minecraft_agent.*;
 import moe.xinmu.minecraft_agent.annotation.*;
-import javassist.*;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.GeneratorAdapter;
 
 @TargetClass("net.minecraftforge.fml.common.registry.ItemStackHolderRef")
 public class PatchItemStackHolderRef implements ClassFileTransformer{
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try{
-/*            byte[] data=new PatchUnsafe().transform(loader,className,classBeingRedefined,protectionDomain,classfileBuffer);
-            if(data==null)
-                return null;*/
-            ClassPool classPool = new ClassPool();
-            CtClass ctClass = classPool.makeClass(new ByteArrayInputStream(classfileBuffer));
-            classPool.insertClassPath(new ByteArrayClassPath("java.lang.reflect.Field",ClassLoader.getSystemResourceAsStream("java/lang/reflect/Field.class").readAllBytes()));
-            CtClass runtimeException = classPool.makeClass(ClassLoader.getSystemResourceAsStream("java/lang/RuntimeException.class"));
-            CtMethod cm=ctClass.getMethod("makeWritable","(Ljava/lang/reflect/Field;)V");
-            cm.setBody("return;");
-            return ctClass.toBytecode();
+            ClassReader cr=new ClassReader(new ByteArrayInputStream(classfileBuffer));
+            ClassWriter cw=new ClassWriter(cr,1);
+            cr.accept(new ClassVisitor(Opcodes.ASM5,cw) {
+                @Override
+                public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+                    if(name.equals("makeWritable")) {
+                        GeneratorAdapter ga=new GeneratorAdapter(super.visitMethod(access, name, desc, signature, exceptions),access,name,desc);
+                        ga.returnValue();
+                        ga.endMethod();
+                        return null;
+                    }
+                    return super.visitMethod(access, name, desc, signature, exceptions);
+                }
+            },0);
+            return cw.toByteArray();
         }   catch (Throwable e){
             e.printStackTrace();
         }
