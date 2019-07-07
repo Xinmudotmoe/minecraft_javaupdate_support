@@ -13,7 +13,10 @@ import moe.xinmu.minecraft_agent.*;
 import moe.xinmu.minecraft_agent.annotation.*;
 import javassist.*;
 
-@TargetClass("net.minecraftforge.registries.ObjectHolderRef$FinalFieldHelper")
+@TargetClass({
+        "net.minecraftforge.registries.ObjectHolderRef$FinalFieldHelper",
+        "net.minecraftforge.fml.common.registry.FinalFieldHelper"
+})
 public class PatchFinalFieldHelper implements ClassFileTransformer{
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {

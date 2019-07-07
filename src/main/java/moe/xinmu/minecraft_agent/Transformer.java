@@ -56,7 +56,7 @@ public final class Transformer implements ClassFileTransformer {
                             String clazzName=className.replace("/",".");
                             Class target=findLoadedClass(loader,clazzName);
                             if(loadFindLoadedClass()&&(target==null||Transformer.class.equals(target))){
-                                err.printf("Change `%s` by `%s`.\n",clazzName,c.getClass().getName());
+                                err.printf("Change `%s` by `%s` in `%s`.\n",clazzName,c.getClass().getName(),loader);
                                 return by;
                             }else{
                                 err.printf("Warning, `%s` has been loaded before the transition and will attempt to redefine this class. The converter is `%s`.\n",clazzName,c.getClass().getName());
@@ -71,7 +71,7 @@ public final class Transformer implements ClassFileTransformer {
         }
         return null;
     }
-    private void redefine(Class c, byte[] data){
+    private void redefine(Class<?> c, byte[] data){
         try {
             instrumentation.redefineClasses(new ClassDefinition(c,data));
         } catch (ClassNotFoundException | UnmodifiableClassException e) {

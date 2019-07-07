@@ -26,8 +26,8 @@ public class PatchLaunch implements ClassFileTransformer{
         try {
             if(cache!=null)
                 return cache.clone();
-            if(!Utils.equalsLByte(Utils.sha1(classfileBuffer),new byte[]{-70, 13, 49, -92, -88, -49, -70, 31, 92, 12, -112, -62, 0, -112, -51, -71, 80, -85, 14, -122}))
-                return null;
+/*            if(!Utils.equalsLByte(Utils.sha1(classfileBuffer),new byte[]{-70, 13, 49, -92, -88, -49, -70, 31, 92, 12, -112, -62, 0, -112, -51, -71, 80, -85, 14, -122}))
+                return null;*/
             JavaClass jc=new ClassParser(new ByteArrayInputStream(classfileBuffer),className).parse();
             ClassGen cg=new ClassGen(jc);
             ConstantPoolGen cpg=cg.getConstantPool();

@@ -68,6 +68,7 @@ public final class AgentModClassLoader {
         private static List<String> transfer=Arrays.asList(
                 // like this
                 //            BootClassLoader   <------------\
+                //                                          PlatformClassLoader
                 //          LimitAppClassLoader --transfer--> AppClassLoader
                 //            URLClassLoader
                 //         SecondaryClassLoader(InMemoryCompiler)

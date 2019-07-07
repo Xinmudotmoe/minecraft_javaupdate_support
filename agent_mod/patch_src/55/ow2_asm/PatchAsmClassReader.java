@@ -45,4 +45,14 @@ public class PatchAsmClassReader implements ClassFileTransformer{
         }
         return null;
     }
+    @Main
+    public static class PatchASM implements $Main{
+        public void main(moe.xinmu.minecraft_agent.AgentModClassLoader amcl){
+            System.out.println("Try to read the ClassReader in the agent environment.");
+            try {
+                amcl.loadClass("org.objectweb.asm.ClassReader");
+            }catch (Exception e){
+            }
+        }
+    }
 }
