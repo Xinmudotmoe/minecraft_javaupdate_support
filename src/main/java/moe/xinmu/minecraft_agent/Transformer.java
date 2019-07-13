@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class Transformer implements ClassFileTransformer {
 
     private ConcurrentHashMap<String, Set<ClassFileTransformer>> map=new ConcurrentHashMap<>();
-    private List<ClassFileTransformer> polling= Collections.synchronizedList(new ArrayList<>());
     private Instrumentation instrumentation;
     private Method findLoadedClass;
     private PrintStream err=System.err;
@@ -46,7 +45,6 @@ public final class Transformer implements ClassFileTransformer {
             ArrayList<ClassFileTransformer>al=new ArrayList<>();
             if(map.containsKey(className))
                 al.addAll(Utils.requireNonNullElse(map.get(className),new HashSet<>()));
-            al.addAll(polling);
             byte[] a=classfileBuffer.clone();
             for (ClassFileTransformer c:al)
                 try{
@@ -77,9 +75,6 @@ public final class Transformer implements ClassFileTransformer {
         } catch (ClassNotFoundException | UnmodifiableClassException e) {
             e.printStackTrace(err);
         }
-    }
-    void addClassFilePolling(ClassFileTransformer classFileTransformer){
-        polling.add(classFileTransformer);
     }
     void addClassFileTransformer(String classname,ClassFileTransformer classFileTransformer){
         classname=classname.replace(".","/");

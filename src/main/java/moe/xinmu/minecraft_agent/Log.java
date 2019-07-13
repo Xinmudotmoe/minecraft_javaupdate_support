@@ -48,9 +48,7 @@ public final class Log {
             log.addHandler(fileHandler);
         }
     }
-    /**获取运行时堆栈信息，用以获取类文件与行数
-     *获取最接近调用Log的类的信息
-     */
+
     private static String get(){
         return Arrays.stream(new Throwable().getStackTrace())
                 .filter(stackTraceElement -> !stackTraceElement.getClassName().equals(Log.class.getName()))

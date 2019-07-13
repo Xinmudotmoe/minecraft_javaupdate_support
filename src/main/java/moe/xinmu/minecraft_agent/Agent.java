@@ -14,7 +14,8 @@ public final class Agent {
         if(args!=null&&args.length()>2)
             Utils.agent_dir=args;
         inst.addTransformer(classLoader.getTransformer());
-        classLoader.init(inst);
+        classLoader.init();
+        classLoader.main(inst);
     }
 
     public static void agentmain(String args, Instrumentation inst) {

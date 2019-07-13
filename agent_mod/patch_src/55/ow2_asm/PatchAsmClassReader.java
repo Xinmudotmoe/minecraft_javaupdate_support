@@ -30,10 +30,15 @@ public class PatchAsmClassReader implements ClassFileTransformer{
             for (InstructionHandle i : il){
                 Instruction ii=i.getInstruction();
                 if(ii.getName().equals("bipush"))
-                    if(((BIPUSH)ii).getValue().equals(52)) {
-                        i.setInstruction(new BIPUSH((byte)Utils.getJavaVersion()));
-                        change=true;
-                        break;
+                    switch (((BIPUSH)ii).getValue().intValue()){
+                        case 51:
+                        case 52:
+                        case 53:
+                        case 54:
+                        case 55:
+                            i.setInstruction(new BIPUSH((byte)Utils.getJavaVersion()));
+                            change=true;
+                            break;
                     }
             }
             if(change){

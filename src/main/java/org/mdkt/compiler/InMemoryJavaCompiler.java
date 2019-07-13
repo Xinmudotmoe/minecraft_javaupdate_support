@@ -1,7 +1,5 @@
 package org.mdkt.compiler;
 
-import moe.xinmu.minecraft_agent.AgentModClassLoader;
-
 import java.util.*;
 
 import javax.tools.*;
@@ -11,16 +9,31 @@ import javax.tools.*;
  */
 public class InMemoryJavaCompiler {
 	private JavaCompiler javac;
-	private AgentModClassLoader.SecondaryClassLoader classLoader;
+	private DynamicClassLoader classLoader;
 	private Iterable<String> options;
 	boolean ignoreWarnings = false;
 
 	private Map<String, SourceCode> sourceCodes = new HashMap<String, SourceCode>();
 
+	public static InMemoryJavaCompiler newInstance() {
+		return new InMemoryJavaCompiler();
+	}
 
-	public InMemoryJavaCompiler(AgentModClassLoader.SecondaryClassLoader scl) {
+	private InMemoryJavaCompiler() {
 		this.javac = ToolProvider.getSystemJavaCompiler();
-		this.classLoader = scl;
+		this.classLoader = new DynamicClassLoader(ClassLoader.getSystemClassLoader());
+	}
+
+	public InMemoryJavaCompiler useParentClassLoader(ClassLoader parent) {
+		this.classLoader = new DynamicClassLoader(parent);
+		return this;
+	}
+
+	/**
+	 * @return the class loader used internally by the compiler
+	 */
+	public DynamicClassLoader getClassloader() {
+		return classLoader;
 	}
 
 	/**
@@ -48,13 +61,12 @@ public class InMemoryJavaCompiler {
 	/**
 	 * Compile all sources
 	 *
-	 * @return Map containing instances of all compiled classes
+	 * @return
 	 * @throws Exception
 	 */
 	public /*Map<String, Class<?>>*/void compileAll() throws Exception {
 		if (sourceCodes.size() == 0) {
 			return;
-			/*throw new CompilationException("No source code to compile");*/
 		}
 		Collection<SourceCode> compilationUnits = sourceCodes.values();
 		CompiledCode[] code;
@@ -65,9 +77,7 @@ public class InMemoryJavaCompiler {
 			code[i] = new CompiledCode(iter.next().getClassName());
 		}
 		DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
-
 		ExtendedStandardJavaFileManager fileManager = new ExtendedStandardJavaFileManager(javac.getStandardFileManager(null, null, null), classLoader);
-
 		JavaCompiler.CompilationTask task = javac.getTask(null, fileManager, collector, options, null, compilationUnits);
 		boolean result = task.call();
 		if (!result || collector.getDiagnostics().size() > 0) {

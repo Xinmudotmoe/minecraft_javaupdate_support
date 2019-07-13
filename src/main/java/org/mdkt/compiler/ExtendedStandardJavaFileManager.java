@@ -1,7 +1,5 @@
 package org.mdkt.compiler;
 
-import moe.xinmu.minecraft_agent.AgentModClassLoader;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +19,7 @@ public class ExtendedStandardJavaFileManager extends
 		ForwardingJavaFileManager<JavaFileManager> {
 
 	private List<CompiledCode> compiledCode = new ArrayList<CompiledCode>();
-	private AgentModClassLoader.SecondaryClassLoader cl;
+	private DynamicClassLoader cl;
 
 	/**
 	 * Creates a new instance of ForwardingJavaFileManager.
@@ -31,7 +29,7 @@ public class ExtendedStandardJavaFileManager extends
 	 * @param cl
 	 */
 	protected ExtendedStandardJavaFileManager(JavaFileManager fileManager,
-											  AgentModClassLoader.SecondaryClassLoader cl) {
+			DynamicClassLoader cl) {
 		super(fileManager);
 		this.cl = cl;
 	}
