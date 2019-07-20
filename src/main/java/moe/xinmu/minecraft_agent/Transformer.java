@@ -21,7 +21,7 @@ public final class Transformer implements ClassFileTransformer {
         if(findLoadedClass==null)
             try{
                 findLoadedClass=ClassLoader.class.getDeclaredMethod("findLoadedClass",String.class);
-                    Utils.setAccessible(findLoadedClass,true);
+                Utils.setAccessible(findLoadedClass,true);
             }catch (NoSuchMethodException e){
                 return false;
             }

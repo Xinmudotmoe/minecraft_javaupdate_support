@@ -1,79 +1,74 @@
 package moe.xinmu.minecraft.patcher;
 
-import java.io.*;
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.*;
 
-import org.apache.bcel.Const;
-import org.apache.bcel.Repository;
-import org.apache.bcel.classfile.*;
-import org.apache.bcel.generic.*;
 import moe.xinmu.minecraft_agent.*;
 import moe.xinmu.minecraft_agent.annotation.*;
+import org.objectweb.asm.*;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
+import org.objectweb.asm.commons.Method;
 
 @TargetClass("net.minecraft.launchwrapper.Launch")
-public class PatchLaunch implements ClassFileTransformer{
-    byte[]cache;
-    public final static List<String> link=Collections.synchronizedList(new ArrayList<>());
+public class PatchLaunch implements ClassFileTransformer {
+    public final static List<String> addClassLoaderExclusion = Collections.synchronizedList(new ArrayList<>());
     static {
-        link.add("moe.xinmu.minecraft_agent.Utils");
+        addClassLoaderExclusion.add("moe.xinmu.minecraft_agent.Utils");
+        addClassLoaderExclusion.add("jdk.internal");
     }
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-                            ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+                            ProtectionDomain protectionDomain, byte[] classfileBuffer) {
         try {
-            if(cache!=null)
-                return cache.clone();
-/*            if(!Utils.equalsLByte(Utils.sha1(classfileBuffer),new byte[]{-70, 13, 49, -92, -88, -49, -70, 31, 92, 12, -112, -62, 0, -112, -51, -71, 80, -85, 14, -122}))
-                return null;*/
-            JavaClass jc=new ClassParser(new ByteArrayInputStream(classfileBuffer),className).parse();
-            ClassGen cg=new ClassGen(jc);
-            ConstantPoolGen cpg=cg.getConstantPool();
-            int li2=cpg.addMethodref("moe/xinmu/minecraft_agent/Utils","getClassLoaderURLs","()[Ljava/net/URL;");
-            int li3=cpg.addFieldref("net/minecraft/launchwrapper/Launch","classLoader","Lnet/minecraft/launchwrapper/LaunchClassLoader;");
-            int li4=cpg.addMethodref("net/minecraft/launchwrapper/LaunchClassLoader","addClassLoaderExclusion","(Ljava/lang/String;)V");
-            Method m=cg.containsMethod("<init>","()V");
-            if(m.isPrivate()){
-                m.isPrivate(false);
-                m.isPublic(true);
+            Method constructor=new Method("<init>","()V");
+            ClassReader cr=new ClassReader(classfileBuffer);
+            ClassWriter cw=new ClassWriter(cr,0);
+            cr.accept(new ClassVisitor(Opcodes.ASM5,cw) {
+                @Override
+                public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+                    if(name.equals("<init>")&&descriptor.equals("()V"))
+                        return null;
+                    return super.visitMethod(access, name, descriptor, signature, exceptions);
+                }
+            },0);
+            MethodVisitor mv=cw.visitMethod(Opcodes.ACC_PRIVATE,"<init>","()V",null,null);
+            GeneratorAdapter ga=new GeneratorAdapter(mv,Opcodes.ACC_PRIVATE,"<init>","()V");
+            ga.loadThis();
+            ga.invokeConstructor(Type.getType(Object.class), constructor);
+            ga.loadThis();
+            ga.newInstance(Type.getType("net/minecraft/launchwrapper/LaunchClassLoader"));
+            ga.dup();
+            ga.invokeStatic(Type.getType(Utils.class),
+                    Method.getMethod(Utils.class.getDeclaredMethod("getClassLoaderURLs")));
+            ga.invokeConstructor(Type.getType("net/minecraft/launchwrapper/LaunchClassLoader"),
+                    new Method("<init>",Type.VOID_TYPE,new Type[]{Type.getType("[Ljava/net/URL;")}));
+            ga.putStatic(Type.getType(cr.getClassName()),"classLoader",
+                    Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"));
+            ga.newInstance(Type.getType(HashMap.class));
+            ga.dup();
+            ga.invokeConstructor(Type.getType(HashMap.class),constructor);
+            ga.putStatic(Type.getType(cr.getClassName()),"blackboard",Type.getType(Map.class));
+            ga.invokeStatic(Type.getType(Thread.class),
+                    Method.getMethod(Thread.class.getDeclaredMethod("currentThread")));
+            ga.getStatic(Type.getType(cr.getClassName()),"classLoader",
+                    Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"));
+            ga.invokeVirtual(Type.getType(Thread.class),
+                    Method.getMethod(Thread.class.getDeclaredMethod("setContextClassLoader", ClassLoader.class)));
+            for (String s:addClassLoaderExclusion) {
+                ga.getStatic(Type.getType(cr.getClassName()),"classLoader",
+                        Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"));
+                ga.push(s);
+                ga.invokeVirtual(Type.getType("net/minecraft/launchwrapper/LaunchClassLoader"),
+                        new Method("addClassLoaderExclusion",Type.VOID_TYPE,new Type[]{Type.getType(String.class)}));
             }
-            Code c=m.getCode();
-            InstructionList  il=new InstructionList();
-            il.append(new ALOAD(0));
-            il.append(new INVOKESPECIAL(4));
-            il.append(new ALOAD(0));
-
-            il.append(new NEW(8));
-            il.append(new DUP());
-            il.append(new INVOKESTATIC(li2));
-
-            il.append(new INVOKESPECIAL(10));
-            il.append(new PUTSTATIC(11));
-            il.append(new NEW(12));
-            il.append(new DUP());
-            il.append(new INVOKESPECIAL(13));
-            il.append(new PUTSTATIC(14));
-            il.append(new INVOKESTATIC(15));
-            il.append(new GETSTATIC(11));
-            il.append(new INVOKEVIRTUAL(16));
-            for (String s:link) {
-                il.append(new GETSTATIC(li3));
-                il.append(new LDC(cpg.addString(s)));
-                il.append(new INVOKEVIRTUAL(li4));
-            }
-            il.append(new RETURN());
-            c.setCode(il.getByteCode());
-            c.setMaxLocals(2);
-            c.setMaxStack(4);
-            c.setAttributes(Arrays.stream(c.getAttributes())
-                    .filter(a->a.getTag()!=Const.ATTR_LINE_NUMBER_TABLE)
-                    .filter(a->a.getTag()!=Const.ATTR_LOCAL_VARIABLE_TABLE)
-                    .toArray(Attribute[]::new));
-            cache=cg.getJavaClass().getBytes();
-            return cache;
-        } catch (IOException e) {
+            ga.returnValue();
+            ga.endMethod();
+            mv.visitMaxs(4,4);//TODO: Why do I need to handle it manually?
+            cw.visitEnd();
+            return cw.toByteArray();
+        }catch (Exception e){
             e.printStackTrace();
         }
         return null;

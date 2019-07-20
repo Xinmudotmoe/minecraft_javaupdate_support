@@ -23,7 +23,7 @@ public final class AgentModClassLoader {
             //                                          PlatformClassLoader
             //          LimitAppClassLoader --transfer--> AppClassLoader
             //            URLClassLoader
-            //         SecondaryClassLoader(InMemoryCompiler)
+            //          DynamicClassLoader(InMemoryCompiler)
             AgentModClassLoader.class.getName(),
             Agent.class.getName(),
             Transformer.class.getName(),
@@ -56,7 +56,7 @@ public final class AgentModClassLoader {
 
     public void init() {
         List<File> ls=new ArrayList<>();
-        findFile(new File(Utils.getAgent_dir()),ls);
+        findFile(Utils.getAgent_dir_file(),ls);
         ls.add(new File(Agent.class.getProtectionDomain().getCodeSource().getLocation().getFile()));
         settingcompileclasspath(ls.stream().filter(a->a.getName().endsWith(".jar")).toArray(File[]::new));
     }
@@ -80,9 +80,10 @@ public final class AgentModClassLoader {
 
     public String[] compile(){
         ArrayList<File> al=new ArrayList<>();
-        String src=Utils.agent_dir +"/patch_src/";
+        File patch_src=new File(Utils.getAgent_dir_file(),"patch_src");
+
         for (int i = 0; i <= Utils.getJavaVersion(); i++) {
-            File f=new File(src+i);
+            File f=new File(patch_src,String.valueOf(i));
             if(f.isDirectory())
                 findFile(f,al);
         }

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.logging.*;
-
+@Deprecated
 public final class Log {
     private static Logger log;
     static {
@@ -23,14 +23,14 @@ public final class Log {
     private static void init(){
         try {
             Properties prop=new Properties();
-            prop.load(new FileInputStream(new File(Utils.getAgent_dir()+"/setting.properties")));
+            prop.load(new FileInputStream(new File(Utils.getAgent_dir_file(),"setting.properties")));
             if(prop.containsKey("logfile")){
                 String log=prop.getProperty("logfile");
                 init(log);
                 i("LogInit",String.format("Find the target log file %s, the initialization is successful.",log));
             }
             else{
-                init(Utils.getAgent_dir()+"/log.log");
+                init(Utils.getAgent_dir_file().getAbsolutePath()+"/log.log");
                 i("LogInit","Use the default log file");
             }
         } catch (IOException er) {

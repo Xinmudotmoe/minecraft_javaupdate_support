@@ -14,7 +14,11 @@ import moe.xinmu.minecraft_agent.*;
 import moe.xinmu.minecraft_agent.annotation.*;
 import javassist.*;
 
-@TargetClass("lumien.randomthings.asm.CustomClassWriter")
+@TargetClass({
+        "lumien.randomthings.asm.CustomClassWriter",
+        "shadows.CustomClassWriter",
+        "shadows.squeezer.CustomClassWriter"
+})
 public class PatchRandomThingsAsmCustomClassWriter implements ClassFileTransformer{
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {

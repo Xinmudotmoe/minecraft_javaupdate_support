@@ -2,6 +2,7 @@ package moe.xinmu.minecraft_agent;
 
 import sun.misc.Unsafe;
 
+import java.io.File;
 import java.lang.reflect.*;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -30,9 +31,7 @@ public final class Utils {
     private static boolean isnewjdk=false;
     private static boolean isnewclassloader=false;
     private static boolean init=false;
-    static {
-        init();
-    }
+    private static File agent_dir_file=new File("agent_mod");
     public static boolean isNewJDK(){
         return isnewjdk;
     }
@@ -48,9 +47,9 @@ public final class Utils {
             }
             ClassLoader cl = ClassLoader.getSystemClassLoader();
             if (isnewclassloader = !(cl instanceof URLClassLoader))
-                Log.i("Utils", "NewClassLoader is True.");
+                Log.i("Utils", "ClassLoader is New.");
             else
-                Log.i("Utils", "NewClassLoader is False.");
+                Log.i("Utils", "ClassLoader is Legacy.");
             Log.i("Utils", "Init End.");
             init=true;
         }
@@ -113,7 +112,7 @@ public final class Utils {
             mdTemp = MessageDigest.getInstance("SHA1");
         } catch (NoSuchAlgorithmException e) {
             // Can't find? Let it crash.
-            throw new Error(e);
+            throw new RuntimeException(e);
         }
         return mdTemp.digest(a);
     }
@@ -169,10 +168,16 @@ public final class Utils {
         return ((Double)(Double.parseDouble(System.getProperty("java.class.version")))).intValue();
     }
 
-    static String agent_dir="agent_mod";
+    public static void setAgent_dir_file(File file) {
+        if (file==null)
+            throw new NullPointerException();
+        if(!file.isDirectory())
+            throw new RuntimeException(file+" Not Directory");
+        agent_dir_file = file;
+    }
 
-    public static String getAgent_dir() {
-        return agent_dir;
+    public static File getAgent_dir_file() {
+        return agent_dir_file;
     }
 
     //Old-style processing method.
@@ -188,7 +193,7 @@ public final class Utils {
                 setAccessible(method,true);
                 method.invoke(ucl,url);
             }catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e){
-                throw new Error(e);
+                throw new RuntimeException(e);
             }
         }
     }
@@ -211,7 +216,7 @@ public final class Utils {
                 setAccessible(latestGetURLsMethod,true);
                 setAccessible(latestAddURLsMethod,true);
             }catch (IllegalAccessException|NoSuchMethodException e) {
-                throw new Error(e);
+                throw new RuntimeException(e);
             }
         }
         private static void addClassLoaderURLsLatest(URL url) {
@@ -220,7 +225,7 @@ public final class Utils {
             try {
                 latestAddURLsMethod.invoke(latestClassPath,url);
             } catch (IllegalAccessException|InvocationTargetException e) {
-                throw new Error(e);
+                throw new RuntimeException(e);
             }
         }
         private static URL[] getClassLoaderURLsLatest(){
@@ -229,7 +234,7 @@ public final class Utils {
             try {
                 return (URL[])(latestGetURLsMethod.invoke(latestClassPath));
             } catch (IllegalAccessException|InvocationTargetException e) {
-                throw new Error(e);
+                throw new RuntimeException(e);
             }
         }
     }
