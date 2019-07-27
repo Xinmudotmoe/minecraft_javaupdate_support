@@ -12,7 +12,7 @@ public class InMemoryJavaCompiler {
 	private DynamicClassLoader classLoader;
 	private Iterable<String> options;
 	boolean ignoreWarnings = false;
-
+	boolean messageStyleIsNative=false;
 	private Map<String, SourceCode> sourceCodes = new HashMap<String, SourceCode>();
 
 	public static InMemoryJavaCompiler newInstance() {
@@ -22,6 +22,10 @@ public class InMemoryJavaCompiler {
 	private InMemoryJavaCompiler() {
 		this.javac = ToolProvider.getSystemJavaCompiler();
 		this.classLoader = new DynamicClassLoader(ClassLoader.getSystemClassLoader());
+	}
+
+	public void useNativeMessageStyle() {
+		this.messageStyleIsNative = true;
 	}
 
 	public InMemoryJavaCompiler useParentClassLoader(ClassLoader parent) {
@@ -98,9 +102,14 @@ public class InMemoryJavaCompiler {
 					hasErrors = true;
 					break;
 				}
-				exceptionMsg.append("\n").append("[kind=").append(d.getKind());
-				exceptionMsg.append(", ").append("line=").append(d.getLineNumber());
-				exceptionMsg.append(", ").append("message=").append(d.getMessage(Locale.US)).append("]");
+				if(!messageStyleIsNative){
+					exceptionMsg.append("\n").append("[kind=").append(d.getKind());
+					exceptionMsg.append(", ").append("line=").append(d.getLineNumber());
+					exceptionMsg.append(", ").append("message=").append(d.getMessage(Locale.US)).append("]");
+				}
+				else
+					exceptionMsg.append("\n").append(d);
+
 			}
 			if (hasWarnings && !ignoreWarnings || hasErrors) {
 				throw new CompilationException(exceptionMsg.toString());

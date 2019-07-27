@@ -1,52 +1,70 @@
 package moe.xinmu.minecraft.patcher;
-import java.io.*;
-import java.lang.Deprecated;
+
+import moe.xinmu.minecraft_agent.Utils;
+
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 import java.util.Arrays;
-
-import org.apache.bcel.Const;
-import org.apache.bcel.Repository;
-import org.apache.bcel.classfile.*;
-import org.apache.bcel.generic.*;
-import moe.xinmu.minecraft_agent.*;
-import moe.xinmu.minecraft_agent.annotation.*;
+import java.io.ByteArrayInputStream;
+import org.objectweb.asm.*;
 import javassist.*;
+import moe.xinmu.minecraft_agent.annotation.TargetClass;
+import static moe.xinmu.minecraft_agent.Utils.getUnsafe;
 
-@TargetClass("net/minecraftforge/common/util/EnumHelper")
-public class PatchEnumHelper implements ClassFileTransformer{
-    @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        try {
-            byte[] cb = classfileBuffer;
-            byte[] un = ((ClassFileTransformer)(this.getClass().getClassLoader().loadClass("moe.xinmu.minecraft.patcher.PatchUnsafe").newInstance())).transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
-            if (un != null)
-                cb = un;
-            ClassPool cp=new ClassPool();
-            cp.insertClassPath(new ClassClassPath(ClassLoader.getSystemClassLoader().loadClass("java.lang.reflect.Field")));
-            cp.insertClassPath(new ClassClassPath(this.getClass().getClassLoader().loadClass("moe.xinmu.minecraft_agent.Utils")));
-            CtClass cc=cp.makeClass(new ByteArrayInputStream(cb));
-            CtMethod cm=cc.getMethod("setFailsafeFieldValue","(Ljava/lang/reflect/Field;Ljava/lang/Object;Ljava/lang/Object;)V");
-            cm.setBody(
-                    "{\n"+
-                            "boolean is_static=java.lang.reflect.Modifier.isStatic($1.getModifiers());\n" +
-                            "if(!is_static&&$2==null){\n" +
-                            "    throw new java.lang.NullPointerException(\"Not Static.\");\n" +
-                            "}\n"+
-                            "long offset=is_static?\n" +
-                            "        moe.xinmu.minecraft_agent.Utils.getUnsafe().staticFieldOffset($1):\n" +
-                            "        moe.xinmu.minecraft_agent.Utils.getUnsafe().objectFieldOffset($1);\n" +
-                            "if(is_static){\n" +
-                            "    $2=moe.xinmu.minecraft_agent.Utils.getUnsafe().staticFieldBase($1);\n" +
-                            "}"+
-                            "moe.xinmu.minecraft_agent.Utils.getUnsafe().putObjectVolatile($2,offset,$3);\n"+
-                            "}"
-            );
-            return cc.toBytecode();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
-    }
+public class PatchEnumHelper {
+	@TargetClass("net/minecraftforge/common/util/EnumHelper")
+	public static class Patch implements ClassFileTransformer {
+		static String targetname;
+
+		static {
+			targetname = PatchEnumHelper.class.getName();
+			String resourcename = targetname.replace(".", "/").concat(".class");
+			if (new URLClassLoader(Utils.getClassLoaderURLs(), null).getResource(resourcename) == null) {
+				Utils.addClassLoaderURLs(PatchEnumHelper.class.getClassLoader().getResource(resourcename));
+			}
+		}
+
+		@Override
+		public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) {
+			try {
+				byte[] cb = classfileBuffer;
+				byte[] un = ((ClassFileTransformer) (this.getClass().getClassLoader().loadClass("moe.xinmu.minecraft.patcher.PatchUnsafe").newInstance())).transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+				if (un != null)
+					cb = un;
+				ClassPool cp = new ClassPool();
+				cp.insertClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
+				CtClass cc = cp.makeClass(new ByteArrayInputStream(cb));
+				CtMethod cm = cc.getMethod("setFailsafeFieldValue", "(Ljava/lang/reflect/Field;Ljava/lang/Object;Ljava/lang/Object;)V");
+				cm.setBody("{" + targetname + ".setFieldValue($2,$1,$3);}");
+				return cc.toBytecode();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+	}
+
+	public static void setFieldValue(/*Nullable*/Object mirror,/*NotNull*/Field field,/*NotNull*/Object o) {
+		boolean is_static = Modifier.isStatic(field.getModifiers());
+		if (!is_static && mirror == null)
+			throw new NullPointerException("Not Static.");
+		long offset;
+		if (is_static)
+			offset = getUnsafe().staticFieldOffset(field);
+		else
+			offset = getUnsafe().objectFieldOffset(field);
+		if (is_static)
+			mirror = getUnsafe().staticFieldBase(field);
+		getUnsafe().putObjectVolatile(mirror, offset, o);
+
+		Utils.setAccessible(field, true);
+		try {
+			field.get(mirror);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
