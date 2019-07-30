@@ -4,12 +4,15 @@ import moe.xinmu.minecraft_agent.annotation.$Main;
 import moe.xinmu.minecraft_agent.annotation.Main;
 import moe.xinmu.minecraft_agent.annotation.TargetClass;
 
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public final class SMain implements $Main {
 	public void main(AgentModClassLoader amcl, Instrumentation instrumentation) {
@@ -32,7 +35,7 @@ public final class SMain implements $Main {
 								try {
 									byte[] source = classfileBuffer.clone();
 									byte[] bytes = c.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
-									if (bytes != null && Utils.equalsLByte(source, bytes)) {
+									if (bytes != null && Arrays.equals(source, bytes)) {
 										err.printf("Change `%s` by `%s` in `%s`.\n", className.replace("/", "."), c.getClass().getName(), loader);
 										return bytes;
 									}
@@ -69,5 +72,6 @@ public final class SMain implements $Main {
 			} catch (Exception ignored) {
 			}
 		}
+
 	}
 }

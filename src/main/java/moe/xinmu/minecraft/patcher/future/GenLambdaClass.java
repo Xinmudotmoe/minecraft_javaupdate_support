@@ -8,7 +8,6 @@ import java.util.Objects;
 public class GenLambdaClass {
 	public GenLambdaClass() {
 		this(GenLambdaClass.class);
-
 	}
 
 	public GenLambdaClass(Class<?> mirror) {

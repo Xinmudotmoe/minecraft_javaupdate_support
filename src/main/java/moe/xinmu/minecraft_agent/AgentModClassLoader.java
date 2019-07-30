@@ -112,7 +112,7 @@ public final class AgentModClassLoader {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		System.out.println("InMemoryClassCompiler Memory Size: " + cl.getAllSize());
+		System.out.println("InMemoryClassCompiler memory footprint (conservative estimate): " + cl.getAllSize());
 		return cl.getCompiledClazzName();
 	}
 
@@ -120,7 +120,7 @@ public final class AgentModClassLoader {
 		StringJoiner sj = new StringJoiner(System.getProperty("path.separator"));
 		List<File> af = new ArrayList<>(Arrays.asList(urls));
 		af.stream().map(File::getPath).forEach(sj::add);
-		imjc.useOptions("-nowarn", "-g", "-classpath", sj.toString());
+		imjc.useOptions("-nowarn", "-g", "-classpath", sj.toString(), "-Xlint:all");
 		cl = imjc.useParentClassLoader(genSubClassLoader(af.toArray(new File[0]))).getClassloader();
 	}
 

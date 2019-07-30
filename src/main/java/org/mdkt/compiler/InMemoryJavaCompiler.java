@@ -86,7 +86,6 @@ public class InMemoryJavaCompiler {
 		boolean result = task.call();
 		if (!result || collector.getDiagnostics().size() > 0) {
 			StringBuffer exceptionMsg = new StringBuffer();
-			exceptionMsg.append("Unable to compile the source");
 			boolean hasWarnings = false;
 			boolean hasErrors = false;
 			for (Diagnostic<? extends JavaFileObject> d : collector.getDiagnostics()) {
@@ -111,7 +110,9 @@ public class InMemoryJavaCompiler {
 					exceptionMsg.append("\n").append(d);
 
 			}
+			System.err.println(exceptionMsg.toString());
 			if (hasWarnings && !ignoreWarnings || hasErrors) {
+				exceptionMsg.insert(0,"Unable to compile the source");
 				throw new CompilationException(exceptionMsg.toString());
 			}
 		}

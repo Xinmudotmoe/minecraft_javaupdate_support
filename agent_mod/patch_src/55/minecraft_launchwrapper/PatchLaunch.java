@@ -29,6 +29,7 @@ public class PatchLaunch implements ClassFileTransformer {
 		try {
 			Method constructor = new Method("<init>", "()V");
 			ClassReader cr = new ClassReader(classfileBuffer);
+			Type classname=Type.getType("L"+cr.getClassName()+";");
 			ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
 			cr.accept(new ClassVisitor(Opcodes.ASM5, cw) {
 				@Override
@@ -43,29 +44,29 @@ public class PatchLaunch implements ClassFileTransformer {
 			ga.loadThis();
 			ga.invokeConstructor(Type.getType(Object.class), constructor);
 			ga.loadThis();
-			ga.newInstance(Type.getType("net/minecraft/launchwrapper/LaunchClassLoader"));
+			ga.newInstance(Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"));
 			ga.dup();
 			ga.invokeStatic(Type.getType(Utils.class),
 					Method.getMethod(Utils.class.getDeclaredMethod("getClassLoaderURLs")));
-			ga.invokeConstructor(Type.getType("net/minecraft/launchwrapper/LaunchClassLoader"),
+			ga.invokeConstructor(Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"),
 					new Method("<init>", Type.VOID_TYPE, new Type[] {Type.getType("[Ljava/net/URL;")}));
-			ga.putStatic(Type.getType(cr.getClassName()), "classLoader",
+			ga.putStatic(classname, "classLoader",
 					Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"));
 			ga.newInstance(Type.getType(HashMap.class));
 			ga.dup();
 			ga.invokeConstructor(Type.getType(HashMap.class), constructor);
-			ga.putStatic(Type.getType(cr.getClassName()), "blackboard", Type.getType(Map.class));
+			ga.putStatic(classname, "blackboard", Type.getType(Map.class));
 			ga.invokeStatic(Type.getType(Thread.class),
 					Method.getMethod(Thread.class.getDeclaredMethod("currentThread")));
-			ga.getStatic(Type.getType(cr.getClassName()), "classLoader",
+			ga.getStatic(classname, "classLoader",
 					Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"));
 			ga.invokeVirtual(Type.getType(Thread.class),
 					Method.getMethod(Thread.class.getDeclaredMethod("setContextClassLoader", ClassLoader.class)));
 			for (String s : addClassLoaderExclusion) {
-				ga.getStatic(Type.getType(cr.getClassName()), "classLoader",
+				ga.getStatic(classname, "classLoader",
 						Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"));
 				ga.push(s);
-				ga.invokeVirtual(Type.getType("net/minecraft/launchwrapper/LaunchClassLoader"),
+				ga.invokeVirtual(Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"),
 						new Method("addClassLoaderExclusion", Type.VOID_TYPE, new Type[] {Type.getType(String.class)}));
 			}
 			ga.returnValue();

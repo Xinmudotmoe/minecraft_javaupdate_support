@@ -1,25 +1,29 @@
 package moe.xinmu.minecraft.patcher;
 
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.LoaderClassPath;
 import moe.xinmu.minecraft_agent.Utils;
+import moe.xinmu.minecraft_agent.annotation.Main;
+import moe.xinmu.minecraft_agent.annotation.TargetClass;
 
+import java.io.ByteArrayInputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
-import java.util.Arrays;
-import java.io.ByteArrayInputStream;
-import org.objectweb.asm.*;
-import javassist.*;
-import moe.xinmu.minecraft_agent.annotation.TargetClass;
+
 import static moe.xinmu.minecraft_agent.Utils.getUnsafe;
 
 public class PatchEnumHelper {
-	@TargetClass("net/minecraftforge/common/util/EnumHelper")
+	@Main
+	@TargetClass("net/minecraftforge/common/util/EnumHelper")//c4cf950863256ed048a46e098401a969dfe4cb2ec4cf950 - Fix the rest of the "easy" compile errors (#5151)
 	public static class Patch implements ClassFileTransformer {
 		static String targetname;
 
-		static {
+		public static void main(String[] args) {
 			targetname = PatchEnumHelper.class.getName();
 			String resourcename = targetname.replace(".", "/").concat(".class");
 			if (new URLClassLoader(Utils.getClassLoaderURLs(), null).getResource(resourcename) == null) {
@@ -31,7 +35,7 @@ public class PatchEnumHelper {
 		public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) {
 			try {
 				byte[] cb = classfileBuffer;
-				byte[] un = ((ClassFileTransformer) (this.getClass().getClassLoader().loadClass("moe.xinmu.minecraft.patcher.PatchUnsafe").newInstance())).transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+				byte[] un = new PatchUnsafe().transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
 				if (un != null)
 					cb = un;
 				ClassPool cp = new ClassPool();

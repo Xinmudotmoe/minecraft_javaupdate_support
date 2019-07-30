@@ -15,7 +15,7 @@ import moe.xinmu.minecraft_agent.annotation.*;
 import javassist.*;
 @Deprecated
 @TargetClass(
-		"cpw.mods.fml.common.registry.ObjectHolderRef"
+		"cpw.mods.fml.common.registry.ObjectHolderRef"//Minecraft Forge Legacy
 )
 public class PatchUnsafe implements ClassFileTransformer {
 	@Override
@@ -41,12 +41,13 @@ public class PatchUnsafe implements ClassFileTransformer {
 				cop.setConstant(cop.lookupUtf8("sun.reflect.FieldAccessor"),
 						new ConstantUtf8("jdk.internal.reflect.FieldAccessor"));
 			}
-			if (change)
+			if (change) {
+				ModuleOpenHelper.OpenModule("java.base","jdk.internal.reflect");
 				return cg.getJavaClass().getBytes();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
-
 	}
 }

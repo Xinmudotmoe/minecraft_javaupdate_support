@@ -44,7 +44,6 @@ public class PatchMixinServiceLaunchWrapper implements ClassFileTransformer {
 		try {
 			ClassPool cp = new ClassPool();
 			CtClass string = cp.makeClass(new ClassClassPath(loader.loadClass("java.lang.String")).openClassfile("java.lang.String"));
-			cp.insertClassPath(new ClassClassPath(loader.loadClass("jdk.internal.loader.ClassLoaders")));
 			cp.insertClassPath(new ClassClassPath(loader.loadClass("moe.xinmu.minecraft_agent.Utils")));
 			cp.insertClassPath(new ClassClassPath(loader.loadClass("net.minecraft.launchwrapper.LaunchClassLoader")));
 			cp.insertClassPath(new ClassClassPath(loader.loadClass("net.minecraft.launchwrapper.Launch")));

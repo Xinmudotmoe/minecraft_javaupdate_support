@@ -9,8 +9,6 @@ public final class Agent {
 			Utils.setAgent_dir_file(new File(args));
 		Log.i("Agent", "Start Agent processing");
 		Utils.init();
-		//future
-		Utils.OpenAllModule();
 		AgentModClassLoader classLoader = new AgentModClassLoader(inst);
 		inst.addTransformer(classLoader.getTransformer());
 		classLoader.init();
