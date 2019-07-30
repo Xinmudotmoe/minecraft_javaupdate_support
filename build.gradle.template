@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'moe.xinmu'
-version '0.05'
+version '0.06'
 
 sourceCompatibility = 1.8
 

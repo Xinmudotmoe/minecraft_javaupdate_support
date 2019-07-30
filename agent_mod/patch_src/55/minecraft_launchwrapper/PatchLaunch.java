@@ -1,82 +1,81 @@
 package moe.xinmu.minecraft.patcher;
 
-import java.io.*;
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.*;
 
-import org.apache.bcel.Const;
-import org.apache.bcel.Repository;
-import org.apache.bcel.classfile.*;
-import org.apache.bcel.generic.*;
 import moe.xinmu.minecraft_agent.*;
 import moe.xinmu.minecraft_agent.annotation.*;
+import org.objectweb.asm.*;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
+import org.objectweb.asm.commons.Method;
+
+import java.lang.instrument.ClassFileTransformer;
+import java.security.ProtectionDomain;
 
 @TargetClass("net.minecraft.launchwrapper.Launch")
-public class PatchLaunch implements ClassFileTransformer{
-    byte[]cache;
-    public final static List<String> link=Collections.synchronizedList(new ArrayList<>());
-    static {
-        link.add("moe.xinmu.minecraft_agent.Utils");
-    }
-    @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-                            ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        try {
-            if(cache!=null)
-                return cache.clone();
-            if(!Utils.equalsLByte(Utils.sha1(classfileBuffer),new byte[]{-70, 13, 49, -92, -88, -49, -70, 31, 92, 12, -112, -62, 0, -112, -51, -71, 80, -85, 14, -122}))
-                return null;
-            JavaClass jc=new ClassParser(new ByteArrayInputStream(classfileBuffer),className).parse();
-            ClassGen cg=new ClassGen(jc);
-            ConstantPoolGen cpg=cg.getConstantPool();
-            int li2=cpg.addMethodref("moe/xinmu/minecraft_agent/Utils","getClassLoaderURLs","()[Ljava/net/URL;");
-            int li3=cpg.addFieldref("net/minecraft/launchwrapper/Launch","classLoader","Lnet/minecraft/launchwrapper/LaunchClassLoader;");
-            int li4=cpg.addMethodref("net/minecraft/launchwrapper/LaunchClassLoader","addClassLoaderExclusion","(Ljava/lang/String;)V");
-            int li5=cpg.addFieldref("net/minecraft/launchwrapper/Launch","classLoader","Lnet/minecraft/launchwrapper/LaunchClassLoader;");
-            Method m=cg.containsMethod("<init>","()V");
-            if(m.isPrivate()){
-                m.isPrivate(false);
-                m.isPublic(true);
-            }
-            Code c=m.getCode();
-            InstructionList  il=new InstructionList();
-            il.append(new ALOAD(0));
-            il.append(new INVOKESPECIAL(cpg.addMethodref("java/lang/Object","<init>","()V")));
-            il.append(new ALOAD(0));
+public class PatchLaunch implements ClassFileTransformer {
+	public final static List<String> addClassLoaderExclusion = Collections.synchronizedList(new ArrayList<>());
 
-            il.append(new NEW(cpg.addClass("net/minecraft/launchwrapper/LaunchClassLoader")));
-            il.append(new DUP());
-            il.append(new INVOKESTATIC(li2));
+	static {
+		addClassLoaderExclusion.add("moe.xinmu.minecraft_agent.Utils");
+		addClassLoaderExclusion.add("jdk.internal");
+	}
 
-            il.append(new INVOKESPECIAL(cpg.addMethodref("net/minecraft/launchwrapper/LaunchClassLoader","<init>","([Ljava/net/URL;)V")));
-            il.append(new PUTSTATIC(li5));
-            il.append(new NEW(cpg.addClass("java/util/HashMap")));
-            il.append(new DUP());
-            il.append(new INVOKESPECIAL(cpg.addMethodref("java/util/HashMap","<init>","()V")));
-            il.append(new PUTSTATIC(cpg.addFieldref("net/minecraft/launchwrapper/Launch","blackboard","Ljava/util/Map;")));
-            il.append(new INVOKESTATIC(cpg.addMethodref("java/lang/Thread","currentThread","()Ljava/lang/Thread;")));
-            il.append(new GETSTATIC(li5));
-            il.append(new INVOKEVIRTUAL(cpg.addMethodref("java/lang/Thread","setContextClassLoader","(Ljava/lang/ClassLoader;)V")));
-            for (String s:link) {
-                il.append(new GETSTATIC(li3));
-                il.append(new LDC(cpg.addString(s)));
-                il.append(new INVOKEVIRTUAL(li4));
-            }
-            il.append(new RETURN());
-            c.setCode(il.getByteCode());
-            c.setMaxLocals(2);
-            c.setMaxStack(4);
-            c.setAttributes(Arrays.stream(c.getAttributes())
-                    .filter(a->a.getTag()!=Const.ATTR_LINE_NUMBER_TABLE)
-                    .filter(a->a.getTag()!=Const.ATTR_LOCAL_VARIABLE_TABLE)
-                    .toArray(Attribute[]::new));
-            cache=cg.getJavaClass().getBytes();
-            return cache;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+	@Override
+	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+							ProtectionDomain protectionDomain, byte[] classfileBuffer) {
+		try {
+			Method constructor = new Method("<init>", "()V");
+			ClassReader cr = new ClassReader(classfileBuffer);
+			Type classname=Type.getType("L"+cr.getClassName()+";");
+			ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
+			cr.accept(new ClassVisitor(Opcodes.ASM5, cw) {
+				@Override
+				public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+					if (name.equals("<init>") && descriptor.equals("()V"))
+						return null;
+					return super.visitMethod(access, name, descriptor, signature, exceptions);
+				}
+			}, 0);
+			MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PRIVATE, "<init>", "()V", null, null);
+			GeneratorAdapter ga = new GeneratorAdapter(mv, Opcodes.ACC_PRIVATE, "<init>", "()V");
+			ga.loadThis();
+			ga.invokeConstructor(Type.getType(Object.class), constructor);
+			ga.loadThis();
+			ga.newInstance(Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"));
+			ga.dup();
+			ga.invokeStatic(Type.getType(Utils.class),
+					Method.getMethod(Utils.class.getDeclaredMethod("getClassLoaderURLs")));
+			ga.invokeConstructor(Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"),
+					new Method("<init>", Type.VOID_TYPE, new Type[] {Type.getType("[Ljava/net/URL;")}));
+			ga.putStatic(classname, "classLoader",
+					Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"));
+			ga.newInstance(Type.getType(HashMap.class));
+			ga.dup();
+			ga.invokeConstructor(Type.getType(HashMap.class), constructor);
+			ga.putStatic(classname, "blackboard", Type.getType(Map.class));
+			ga.invokeStatic(Type.getType(Thread.class),
+					Method.getMethod(Thread.class.getDeclaredMethod("currentThread")));
+			ga.getStatic(classname, "classLoader",
+					Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"));
+			ga.invokeVirtual(Type.getType(Thread.class),
+					Method.getMethod(Thread.class.getDeclaredMethod("setContextClassLoader", ClassLoader.class)));
+			for (String s : addClassLoaderExclusion) {
+				ga.getStatic(classname, "classLoader",
+						Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"));
+				ga.push(s);
+				ga.invokeVirtual(Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"),
+						new Method("addClassLoaderExclusion", Type.VOID_TYPE, new Type[] {Type.getType(String.class)}));
+			}
+			ga.returnValue();
+			ga.endMethod();
+			cw.visitEnd();
+			return cw.toByteArray();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

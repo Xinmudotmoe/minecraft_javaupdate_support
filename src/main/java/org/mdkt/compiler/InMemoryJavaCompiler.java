@@ -1,7 +1,5 @@
 package org.mdkt.compiler;
 
-import moe.xinmu.minecraft_agent.AgentModClassLoader;
-
 import java.util.*;
 
 import javax.tools.*;
@@ -11,16 +9,35 @@ import javax.tools.*;
  */
 public class InMemoryJavaCompiler {
 	private JavaCompiler javac;
-	private AgentModClassLoader.SecondaryClassLoader classLoader;
+	private DynamicClassLoader classLoader;
 	private Iterable<String> options;
 	boolean ignoreWarnings = false;
-
+	boolean messageStyleIsNative=false;
 	private Map<String, SourceCode> sourceCodes = new HashMap<String, SourceCode>();
 
+	public static InMemoryJavaCompiler newInstance() {
+		return new InMemoryJavaCompiler();
+	}
 
-	public InMemoryJavaCompiler(AgentModClassLoader.SecondaryClassLoader scl) {
+	private InMemoryJavaCompiler() {
 		this.javac = ToolProvider.getSystemJavaCompiler();
-		this.classLoader = scl;
+		this.classLoader = new DynamicClassLoader(ClassLoader.getSystemClassLoader());
+	}
+
+	public void useNativeMessageStyle() {
+		this.messageStyleIsNative = true;
+	}
+
+	public InMemoryJavaCompiler useParentClassLoader(ClassLoader parent) {
+		this.classLoader = new DynamicClassLoader(parent);
+		return this;
+	}
+
+	/**
+	 * @return the class loader used internally by the compiler
+	 */
+	public DynamicClassLoader getClassloader() {
+		return classLoader;
 	}
 
 	/**
@@ -48,13 +65,12 @@ public class InMemoryJavaCompiler {
 	/**
 	 * Compile all sources
 	 *
-	 * @return Map containing instances of all compiled classes
+	 * @return
 	 * @throws Exception
 	 */
 	public /*Map<String, Class<?>>*/void compileAll() throws Exception {
 		if (sourceCodes.size() == 0) {
 			return;
-			/*throw new CompilationException("No source code to compile");*/
 		}
 		Collection<SourceCode> compilationUnits = sourceCodes.values();
 		CompiledCode[] code;
@@ -65,14 +81,11 @@ public class InMemoryJavaCompiler {
 			code[i] = new CompiledCode(iter.next().getClassName());
 		}
 		DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
-
 		ExtendedStandardJavaFileManager fileManager = new ExtendedStandardJavaFileManager(javac.getStandardFileManager(null, null, null), classLoader);
-
 		JavaCompiler.CompilationTask task = javac.getTask(null, fileManager, collector, options, null, compilationUnits);
 		boolean result = task.call();
 		if (!result || collector.getDiagnostics().size() > 0) {
 			StringBuffer exceptionMsg = new StringBuffer();
-			exceptionMsg.append("Unable to compile the source");
 			boolean hasWarnings = false;
 			boolean hasErrors = false;
 			for (Diagnostic<? extends JavaFileObject> d : collector.getDiagnostics()) {
@@ -88,11 +101,18 @@ public class InMemoryJavaCompiler {
 					hasErrors = true;
 					break;
 				}
-				exceptionMsg.append("\n").append("[kind=").append(d.getKind());
-				exceptionMsg.append(", ").append("line=").append(d.getLineNumber());
-				exceptionMsg.append(", ").append("message=").append(d.getMessage(Locale.US)).append("]");
+				if(!messageStyleIsNative){
+					exceptionMsg.append("\n").append("[kind=").append(d.getKind());
+					exceptionMsg.append(", ").append("line=").append(d.getLineNumber());
+					exceptionMsg.append(", ").append("message=").append(d.getMessage(Locale.US)).append("]");
+				}
+				else
+					exceptionMsg.append("\n").append(d);
+
 			}
+			System.err.println(exceptionMsg.toString());
 			if (hasWarnings && !ignoreWarnings || hasErrors) {
+				exceptionMsg.insert(0,"Unable to compile the source");
 				throw new CompilationException(exceptionMsg.toString());
 			}
 		}

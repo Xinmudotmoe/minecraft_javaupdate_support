@@ -30,4 +30,8 @@ public class CompiledCode extends SimpleJavaFileObject {
     public byte[] getByteCode() {
         return baos.toByteArray();
     }
+
+    public long getSize(){
+        return baos.size();
+    }
 }

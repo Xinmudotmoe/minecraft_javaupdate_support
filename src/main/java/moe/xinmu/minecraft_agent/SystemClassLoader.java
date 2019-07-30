@@ -1,8 +1,5 @@
 package moe.xinmu.minecraft_agent;
 
-import java.io.IOException;
-import java.lang.annotation.Inherited;
-import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -19,11 +16,12 @@ import com.sun.tools.attach.VirtualMachine;
 @Deprecated
 //TODO
 public final class SystemClassLoader extends URLClassLoader {
-    public SystemClassLoader(ClassLoader parent){
-        this(new URL[0], parent);
-    }
-    public SystemClassLoader(URL[] urls, ClassLoader parent) {
-        super(urls, parent);
+	public SystemClassLoader(ClassLoader parent) {
+		this(new URL[0], parent);
+	}
+
+	public SystemClassLoader(URL[] urls, ClassLoader parent) {
+		super(urls, parent);
 /*        try {
             VirtualMachine vm=VirtualMachine.attach(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
             vm.loadAgent(this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile());
@@ -31,5 +29,5 @@ public final class SystemClassLoader extends URLClassLoader {
         } catch (AttachNotSupportedException | IOException | AgentLoadException | AgentInitializationException e) {
             e.printStackTrace();
         }*/
-    }
+	}
 }
