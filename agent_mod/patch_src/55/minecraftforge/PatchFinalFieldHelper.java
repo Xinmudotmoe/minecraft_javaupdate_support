@@ -15,7 +15,8 @@ import javassist.*;
 
 @TargetClass({
 		"net.minecraftforge.registries.ObjectHolderRef$FinalFieldHelper",
-		"net.minecraftforge.fml.common.registry.FinalFieldHelper"
+		"net.minecraftforge.fml.common.registry.FinalFieldHelper",
+		"cpw.mods.fml.common.registry.ObjectHolderRef"
 })
 //TODO: Plan to modify.
 public class PatchFinalFieldHelper implements ClassFileTransformer {
@@ -44,27 +45,15 @@ public class PatchFinalFieldHelper implements ClassFileTransformer {
 			classPool.insertClassPath(new ClassClassPath(java.lang.reflect.Field.class));
 			classPool.insertClassPath(new ClassClassPath(moe.xinmu.minecraft_agent.Utils.class));
 			CtClass ctClass = classPool.makeClass(new ByteArrayInputStream(cg.getJavaClass().getBytes()));
-			CtMethod cm = ctClass.getMethod("setField", "(Ljava/lang/reflect/Field;Ljava/lang/Object;Ljava/lang/Object;)V");
-			cm.setBody(
-					"{\n" +
-							"boolean is_static=java.lang.reflect.Modifier.isStatic($1.getModifiers());\n" +
-							"if(!is_static&&$2==null){\n" +
-							"    throw new java.lang.NullPointerException(\"Not Static.\");\n" +
-							"}" +
-							"if(!$1.getType().isInstance($3)){\n" +
-							"    throw new java.lang.ClassCastException(\"Unsupported modify. Please check type.\");\n" +
-							"}" +
-							"long offset=is_static?\n" +
-							"        moe.xinmu.minecraft_agent.Utils.getUnsafe().staticFieldOffset($1):\n" +
-							"        moe.xinmu.minecraft_agent.Utils.getUnsafe().objectFieldOffset($1);\n" +
-							"if(is_static){\n" +
-							"    $2=moe.xinmu.minecraft_agent.Utils.getUnsafe().staticFieldBase($1);\n" +
-							"}" +
-							"moe.xinmu.minecraft_agent.Utils.getUnsafe().putObjectVolatile($2,offset,$3);\n" +
-							"moe.xinmu.minecraft_agent.Utils.setAccessible($1,true);" +
-							"$1.get($2);" +
-							"}"
-			);
+			try{
+				CtMethod cm = ctClass.getMethod("setField", "(Ljava/lang/reflect/Field;Ljava/lang/Object;Ljava/lang/Object;)V");
+				cm.setBody(
+						"{\n" +
+								"moe.xinmu.minecraft.patcher.PatchEnumHelper.setFieldValue($2,$1,$3);"+
+								"}"
+				);
+			}catch (javassist.NotFoundException e){}
+			//TODO Forge 10.13.4
 			return ctClass.toBytecode();
 		} catch (Throwable e) {
 			e.printStackTrace();

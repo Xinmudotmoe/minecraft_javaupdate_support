@@ -5,6 +5,8 @@ import moe.xinmu.minecraft_agent.annotation.TargetClass;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 
@@ -27,10 +29,20 @@ public class PatchASMHandler implements ClassFileTransformer {
 									operand = Utils.getJavaVersion();
 								super.visitIntInsn(opcode, operand);
 							}
+							boolean change=false;
+							@Override
+							public void visitLdcInsn(Object cst) {
+								if(cst instanceof String){
+									if("invoke".equals(cst))
+										change=true;
+								}
+								super.visitLdcInsn(cst);
+							}
 
 							@Override
 							public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-								if (opcode == Opcodes.INVOKEVIRTUAL && owner.equals("org/objectweb/asm/MethodVisitor") && name.equals("visitMethodInsn")) {
+								if (change&&opcode == Opcodes.INVOKEVIRTUAL && owner.equals("org/objectweb/asm" +
+										"/MethodVisitor") && name.equals("visitMethodInsn")) {
 									GeneratorAdapter ga = (GeneratorAdapter) mv;
 									ga.pop();
 									ga.loadArg(0);

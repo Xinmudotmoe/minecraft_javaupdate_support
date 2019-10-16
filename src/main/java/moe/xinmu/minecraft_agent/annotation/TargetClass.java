@@ -18,4 +18,5 @@ import java.lang.annotation.Target;
 
 public @interface TargetClass {
 	String[] value() default { };
+	boolean register()default true;
 }

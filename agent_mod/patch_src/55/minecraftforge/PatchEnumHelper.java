@@ -14,12 +14,15 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
+import java.io.IOException;
 
 import static moe.xinmu.minecraft_agent.Utils.getUnsafe;
 
 public class PatchEnumHelper {
 	@Main
-	@TargetClass("net/minecraftforge/common/util/EnumHelper")//c4cf950863256ed048a46e098401a969dfe4cb2ec4cf950 - Fix the rest of the "easy" compile errors (#5151)
+	@TargetClass("net/minecraftforge/common/util/EnumHelper")
+	// TODO c4cf950863256ed048a46e098401a969dfe4cb2ec4cf950
+	// -Fix the rest of the "easy" compile errors (#5151)
 	public static class Patch implements ClassFileTransformer {
 		static String targetname;
 
@@ -27,7 +30,12 @@ public class PatchEnumHelper {
 			targetname = PatchEnumHelper.class.getName();
 			String resourcename = targetname.replace(".", "/").concat(".class");
 			if (new URLClassLoader(Utils.getClassLoaderURLs(), null).getResource(resourcename) == null) {
-				Utils.addClassLoaderURLs(PatchEnumHelper.class.getClassLoader().getResource(resourcename));
+				try {
+					Utils.TempJar.INSTANCE.addFile(resourcename,
+							PatchEnumHelper.class.getClassLoader().getResource(resourcename).openStream());
+				}catch (IOException e){
+					e.printStackTrace();
+				}
 			}
 		}
 

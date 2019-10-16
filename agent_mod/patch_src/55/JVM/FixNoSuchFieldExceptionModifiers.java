@@ -8,7 +8,7 @@ import moe.xinmu.minecraft_agent.annotation.*;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-@Main
+@PreMain
 public class FixNoSuchFieldExceptionModifiers implements $Main {
 	public void main(AgentModClassLoader amcl, Instrumentation instrumentation) {
 /*        try{

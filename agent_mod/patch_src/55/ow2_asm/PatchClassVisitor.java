@@ -38,7 +38,7 @@ public class PatchClassVisitor implements ClassFileTransformer {
 		}, 0);
 		if (flag.get())
 			return cw.toByteArray();
-		return null;
+		return classfileBuffer;
 	}
 
 	@Main
@@ -46,10 +46,11 @@ public class PatchClassVisitor implements ClassFileTransformer {
 		public void main(moe.xinmu.minecraft_agent.AgentModClassLoader amcl, Instrumentation instrumentation) {
 			System.out.println("Try to read the ClassVisitor in the agent environment.");
 			try {
-				Class<?> c = amcl.loadClass(target);
-				byte[] v = c.getResourceAsStream(target.replace(".", "/") + ".class").readAllBytes();
+				Class<?> c = amcl.getClassLoader().loadClass(target);
+				byte[] v = amcl.getClassLoader().getResourceAsStream(target.replace(".", "/") + ".class").readAllBytes();
 				instrumentation.redefineClasses(new ClassDefinition(c, new PatchClassVisitor().transform(c.getClassLoader(), c.getName(), c, null, v)));
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 	}

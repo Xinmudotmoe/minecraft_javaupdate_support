@@ -2,14 +2,18 @@ package moe.xinmu.minecraft_agent;
 
 import sun.misc.Unsafe;
 
-import java.io.File;
+import java.io.*;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.zip.*;
 
 @SuppressWarnings({"deprecation", "unused"})//Block warnings when compiling in Java8. However, it did not take effect.
 public final class Utils {
@@ -74,8 +78,8 @@ public final class Utils {
 				Field field = AccessibleObject.class.getDeclaredField("override");
 				getUnsafe().putBoolean(ao, getUnsafe().objectFieldOffset(field), flag);
 			} catch (NoSuchFieldException | SecurityException ei) {
-				ei.printStackTrace();
 				setAccessibleDependentOnUnsafe(ao, flag);
+				ei.printStackTrace();
 			}
 		}
 	}
@@ -193,6 +197,33 @@ public final class Utils {
 			} catch (IllegalAccessException | InvocationTargetException e) {
 				throw new RuntimeException(e);
 			}
+		}
+	}
+	public static final class TempJar{
+		public static final TempJar INSTANCE=new TempJar();
+		Map<String,byte[]> map=Collections.synchronizedMap(new HashMap<>());
+		private TempJar(){}
+		public void addFile(String path,InputStream data)throws IOException{
+			map.put(path,data.readAllBytes());
+		}
+		public void addFile(String path,byte[]data){
+			map.put(path,data.clone());
+		}
+
+		public File genFile() throws IOException {
+			File f=File.createTempFile("mod",".jar");
+			OutputStream cos=new CheckedOutputStream(new FileOutputStream(f), new CRC32());
+			ZipOutputStream zos=new ZipOutputStream(cos);
+			for (String key:map.keySet()){
+				ZipEntry entry = new ZipEntry(key);
+				zos.putNextEntry(entry);
+				zos.write(map.get(key));
+				zos.closeEntry();
+			}
+			zos.close();
+			cos.close();
+			map.clear();
+			return f;
 		}
 	}
 }

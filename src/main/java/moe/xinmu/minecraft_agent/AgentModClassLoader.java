@@ -26,8 +26,8 @@ public final class AgentModClassLoader {
 	private InMemoryJavaCompiler imjc;
 	private static List<String> transfer = Arrays.asList(
 			// like this
-			//            BootClassLoader   <------------\
-			//                                          PlatformClassLoader
+			//                          BootClassLoader
+			//                        PlatformClassLoader
 			//          LimitAppClassLoader --transfer--> AppClassLoader
 			//            URLClassLoader
 			//          DynamicClassLoader(InMemoryCompiler)
@@ -36,7 +36,9 @@ public final class AgentModClassLoader {
 			Transformer.class.getName(),
 			Utils.class.getName(),
 			Log.class.getName(),
-
+			moe.xinmu.minecraft_agent.version.ASMVersion.class.getName(),
+			moe.xinmu.minecraft_agent.version.MinecraftVersion.class.getName(),
+			DeobfUtils.class.getName(),
 			$Main.class.getName(),
 			Main.class.getName(),
 			TargetClass.class.getName()
@@ -49,8 +51,8 @@ public final class AgentModClassLoader {
 		imjc.ignoreWarnings();
 	}
 
-	public Class<?> loadClass(String name) throws ClassNotFoundException {
-		return cl.loadClass(name);
+	public ClassLoader getClassLoader() {
+		return cl;
 	}
 
 	private static void findFile(File f, List<File> ff) {
@@ -78,7 +80,7 @@ public final class AgentModClassLoader {
 		}
 	}
 
-	public ClassFileTransformer getTransformer() {
+	ClassFileTransformer getTransformer() {
 		return transformer;
 	}
 
@@ -120,12 +122,12 @@ public final class AgentModClassLoader {
 		StringJoiner sj = new StringJoiner(System.getProperty("path.separator"));
 		List<File> af = new ArrayList<>(Arrays.asList(urls));
 		af.stream().map(File::getPath).forEach(sj::add);
-		imjc.useOptions("-nowarn", "-g", "-classpath", sj.toString(), "-Xlint:all");
+		imjc.useOptions("-nowarn", "-g", "-classpath", sj.toString(), "-Xlint:none");
 		cl = imjc.useParentClassLoader(genSubClassLoader(af.toArray(new File[0]))).getClassloader();
 	}
 
 	private static URLClassLoader genSubClassLoader(File[] files) {
-		LimitAppClassLoader lacl = new LimitAppClassLoader(String.class.getClassLoader()/*This is null*/);
+		LimitAppClassLoader lacl = new LimitAppClassLoader(Agent.class.getClassLoader().getParent());
 		return new URLClassLoader(
 				Arrays.stream(files)
 						.map(File::toURI)

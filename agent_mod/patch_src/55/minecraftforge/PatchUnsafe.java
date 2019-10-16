@@ -14,9 +14,9 @@ import moe.xinmu.minecraft_agent.*;
 import moe.xinmu.minecraft_agent.annotation.*;
 import javassist.*;
 @Deprecated
-@TargetClass(
-		"cpw.mods.fml.common.registry.ObjectHolderRef"//Minecraft Forge Legacy
-)
+/*@TargetClass(
+		"cpw.mods.fml.common.registry.ObjectHolderRef"//TODO Minecraft Forge Legacy
+)*/
 public class PatchUnsafe implements ClassFileTransformer {
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {

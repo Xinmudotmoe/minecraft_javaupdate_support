@@ -1,25 +1,25 @@
 package moe.xinmu.minecraft.patcher;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.security.ProtectionDomain;
-import java.util.*;
-
-import moe.xinmu.minecraft_agent.*;
-import moe.xinmu.minecraft_agent.annotation.*;
+import moe.xinmu.minecraft_agent.Utils;
+import moe.xinmu.minecraft_agent.annotation.TargetClass;
 import org.objectweb.asm.*;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
+import java.util.*;
 
 @TargetClass("net.minecraft.launchwrapper.Launch")
 public class PatchLaunch implements ClassFileTransformer {
 	public final static List<String> addClassLoaderExclusion = Collections.synchronizedList(new ArrayList<>());
+	public final static List<String> addTransformerExclusion = Collections.synchronizedList(new ArrayList<>());
+	public final static List<String> registerTransformer = Collections.synchronizedList(new ArrayList<>());
 
 	static {
 		addClassLoaderExclusion.add("moe.xinmu.minecraft_agent.Utils");
+		addClassLoaderExclusion.add("moe.xinmu.minecraft_agent.version");
+		addClassLoaderExclusion.add("moe.xinmu.minecraft_agent.DeobfUtils");
 		addClassLoaderExclusion.add("jdk.internal");
 	}
 
@@ -29,7 +29,7 @@ public class PatchLaunch implements ClassFileTransformer {
 		try {
 			Method constructor = new Method("<init>", "()V");
 			ClassReader cr = new ClassReader(classfileBuffer);
-			Type classname=Type.getType("L"+cr.getClassName()+";");
+			Type classname = Type.getType("L" + cr.getClassName() + ";");
 			ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
 			cr.accept(new ClassVisitor(Opcodes.ASM5, cw) {
 				@Override
@@ -68,6 +68,20 @@ public class PatchLaunch implements ClassFileTransformer {
 				ga.push(s);
 				ga.invokeVirtual(Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"),
 						new Method("addClassLoaderExclusion", Type.VOID_TYPE, new Type[] {Type.getType(String.class)}));
+			}
+			for (String s : addTransformerExclusion) {
+				ga.getStatic(classname, "classLoader",
+						Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"));
+				ga.push(s);
+				ga.invokeVirtual(Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"),
+						new Method("addTransformerExclusion", Type.VOID_TYPE, new Type[] {Type.getType(String.class)}));
+			}
+			for (String s : registerTransformer) {
+				ga.getStatic(classname, "classLoader",
+						Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"));
+				ga.push(s);
+				ga.invokeVirtual(Type.getType("Lnet/minecraft/launchwrapper/LaunchClassLoader;"),
+						new Method("registerTransformer", Type.VOID_TYPE, new Type[] {Type.getType(String.class)}));
 			}
 			ga.returnValue();
 			ga.endMethod();

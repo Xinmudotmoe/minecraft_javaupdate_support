@@ -54,7 +54,7 @@ public class DynamicClassLoader extends ClassLoader {
 
 	public static class InMemoryJavaCompilerBase64StreamHandler extends URLStreamHandler {
 
-		private static final InMemoryJavaCompilerBase64StreamHandler INSTANCE=new InMemoryJavaCompilerBase64StreamHandler();
+		public static final InMemoryJavaCompilerBase64StreamHandler INSTANCE=new InMemoryJavaCompilerBase64StreamHandler();
 
 		static final String protocol="in-memory-java-compiler-base64";
 
@@ -62,7 +62,7 @@ public class DynamicClassLoader extends ClassLoader {
 		protected URLConnection openConnection(URL u) {
 			return new InMemoryJavaCompilerBase64Connection(u);
 		}
-		static URL genURL(String name,byte[] data){
+		public static URL genURL(String name,byte[] data){
 			try {
 				return new URL(InMemoryJavaCompilerBase64StreamHandler.protocol+"-"+name.hashCode(),
 						new String(Base64.getUrlEncoder().encode(data)),
