@@ -17,6 +17,7 @@ import java.util.zip.*;
 
 @SuppressWarnings({"deprecation", "unused"})//Block warnings when compiling in Java8. However, it did not take effect.
 public final class Utils {
+	private boolean override_;
 	private static Unsafe unsafe;
 
 	@SuppressWarnings({"unused", "WeakerAccess"})
@@ -85,8 +86,12 @@ public final class Utils {
 	}
 
 	private static void setAccessibleDependentOnUnsafe(AccessibleObject ao, boolean flag) {
-		getUnsafe().putBoolean(ao, is64Bit() ? 12 : 8, flag);
 		Log.w("Utils setAccessibleDependentOnUnsafe", ao.toString());
+		try{
+		    getUnsafe().putBoolean(ao, Utils.class.getDeclaredField("override_"), flag);
+		}catch(Exception e){
+		    getUnsafe().throwException(e);
+		}	
 	}
 
 	@SuppressWarnings({"unused", "WeakerAccess"})
