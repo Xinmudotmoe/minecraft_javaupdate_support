@@ -2,6 +2,7 @@ package moe.xinmu.minecraft;
 
 import moe.xinmu.minecraft_agent.Utils;
 import moe.xinmu.minecraft_agent.annotation.$Main;
+import moe.xinmu.minecraft_agent.annotation.Main;
 import moe.xinmu.minecraft_agent.annotation.PreMain;
 import moe.xinmu.minecraft_agent.version.ASMVersion;
 import moe.xinmu.minecraft_agent.version.MinecraftVersion;
@@ -16,7 +17,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
-@PreMain
+@Main
 public class VersionInitialize implements $Main {
 	@Override
 	public void main() {

@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'moe.xinmu'
-version 'Dev1.12.2'
+version '0.07'
 
 sourceCompatibility = 1.8
 
@@ -16,6 +16,8 @@ dependencies {
     //You can add the library here.
     //Then add code that needs to be debugged in the SMain method.
     //The runtime does not look for libraries from the lib directory unless you add them to the agent_mod directory.
+    compileOnly group: 'org.apache.bcel', name: 'bcel', version: '6.3.1'
+    compileOnly group: 'org.javassist', name: 'javassist', version: '3.25.0-GA'
 }
 artifacts {
     archives jar
@@ -30,7 +32,7 @@ jar {
 
 
 task runMc(type:JavaExec,dependsOn:jar){
-    def minecraftDir="";//add minecraftDir in this
+    def minecraftDir="/.minecraft/";//add minecraftDir in this
     workingDir minecraftDir
     setMain "net.minecraft.launchwrapper.Launch"
     jvmArgs ([

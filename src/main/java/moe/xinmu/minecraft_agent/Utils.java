@@ -88,10 +88,11 @@ public final class Utils {
 	private static void setAccessibleDependentOnUnsafe(AccessibleObject ao, boolean flag) {
 		Log.w("Utils setAccessibleDependentOnUnsafe", ao.toString());
 		try{
-		    getUnsafe().putBoolean(ao, Utils.class.getDeclaredField("override_"), flag);
-		}catch(Exception e){
-		    getUnsafe().throwException(e);
-		}	
+			long offset = getUnsafe().objectFieldOffset(Utils.class.getDeclaredField("override_"));
+			getUnsafe().putBoolean(ao, offset, flag);
+		}catch (Exception e){
+			getUnsafe().throwException(e);
+		}
 	}
 
 	@SuppressWarnings({"unused", "WeakerAccess"})
@@ -208,8 +209,14 @@ public final class Utils {
 		public static final TempJar INSTANCE=new TempJar();
 		Map<String,byte[]> map=Collections.synchronizedMap(new HashMap<>());
 		private TempJar(){}
-		public void addFile(String path,InputStream data)throws IOException{
-			map.put(path,data.readAllBytes());
+		public void addFile(String path,InputStream data) throws IOException{
+			ByteArrayOutputStream stream=new ByteArrayOutputStream();
+			byte[] buffer = new byte[4096];
+			int read;
+			while ((read = data.read(buffer, 0, 4096)) >= 0) {
+				stream.write(buffer, 0, read);
+			}
+			map.put(path,stream.toByteArray());
 		}
 		public void addFile(String path,byte[]data){
 			map.put(path,data.clone());

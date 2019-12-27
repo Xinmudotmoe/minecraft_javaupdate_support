@@ -49,7 +49,7 @@ public class PatchFinalFieldHelper implements ClassFileTransformer {
 				CtMethod cm = ctClass.getMethod("setField", "(Ljava/lang/reflect/Field;Ljava/lang/Object;Ljava/lang/Object;)V");
 				cm.setBody(
 						"{\n" +
-								"moe.xinmu.minecraft.patcher.PatchEnumHelper.setFieldValue($2,$1,$3);"+
+								"moe.xinmu.minecraft.patcher.FieldValueUtils.setFieldValue($2,$1,$3);"+
 								"}"
 				);
 			}catch (javassist.NotFoundException e){}

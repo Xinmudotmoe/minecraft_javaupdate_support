@@ -61,7 +61,6 @@ public final class SMain implements $Main {
 				else
 					naive_mains.add(c);
 			}
-
 		}
 		for (Class<? extends $Main> main : pre_mains) {
 			try {
