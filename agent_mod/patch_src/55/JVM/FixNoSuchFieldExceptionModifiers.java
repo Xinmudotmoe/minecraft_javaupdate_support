@@ -11,15 +11,11 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 @PreMain
 public class FixNoSuchFieldExceptionModifiers implements $Main {
 	public void main(AgentModClassLoader amcl, Instrumentation instrumentation) {
-/*        try{
-            java.lang.reflect.Field.class.getDeclaredField("modifiers");
-        }catch (NoSuchFieldException e){*/
 		try {
 			plan_asm(instrumentation);
 		} catch (Exception e21) {
 			e21.printStackTrace();
 		}
-		/*        }*/
 	}
 
 	private void plan_asm(Instrumentation instrumentation) throws Exception {

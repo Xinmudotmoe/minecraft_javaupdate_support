@@ -36,8 +36,9 @@ public class PatchClassVisitor implements ClassFileTransformer {
 				return mv;
 			}
 		}, 0);
-		if (flag.get())
+		if (flag.get()) {
 			return cw.toByteArray();
+		}
 		return classfileBuffer;
 	}
 

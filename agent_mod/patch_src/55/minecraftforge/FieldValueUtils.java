@@ -25,12 +25,14 @@ public class FieldValueUtils {
 		if (!is_static && mirror == null)
 			throw new NullPointerException("Not Static.");
 		long offset;
-		if (is_static)
+		if (is_static) {
 			offset = getUnsafe().staticFieldOffset(field);
-		else
+		} else {
 			offset = getUnsafe().objectFieldOffset(field);
-		if (is_static)
+		}
+		if (is_static) {
 			mirror = getUnsafe().staticFieldBase(field);
+		}
 		getUnsafe().putObjectVolatile(mirror, offset, o);
 
 		Utils.setAccessible(field, true);

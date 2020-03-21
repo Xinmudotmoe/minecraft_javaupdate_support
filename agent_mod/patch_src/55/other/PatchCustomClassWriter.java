@@ -22,7 +22,7 @@ public class PatchCustomClassWriter implements ClassFileTransformer {
 		cr.accept(new ClassVisitor(Opcodes.ASM5, cw) {
 			@Override
 			public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-				if (name.equals("<clinit>"))
+				if (name.equals("<clinit>")) {
 					return new MethodVisitor(Opcodes.ASM5, new GeneratorAdapter(super.visitMethod(access, name, desc,
 							signature, exceptions), access, name, desc)) {
 						@Override
@@ -44,6 +44,7 @@ public class PatchCustomClassWriter implements ClassFileTransformer {
 							super.visitMethodInsn(opcode, owner, name, desc, itf);
 						}
 					};
+				}
 				return super.visitMethod(access, name, desc, signature, exceptions);
 			}
 		}, 0);

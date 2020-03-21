@@ -161,9 +161,11 @@ public final class AgentModClassLoader {
 
 		@Override
 		protected URL findResource(String name) {
-			if (Pattern.matches(".*\\.class$", name))
-				if (transfer.contains(name.substring(0, name.length() - ".class".length()).replace("/", ".")))
+			if (Pattern.matches(".*\\.class$", name)) {
+				if (transfer.contains(name.substring(0, name.length() - ".class".length()).replace("/", "."))) {
 					return cl.getResource(name);
+				}
+			}
 			return null;
 		}
 	}

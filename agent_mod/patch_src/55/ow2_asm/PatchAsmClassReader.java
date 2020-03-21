@@ -42,7 +42,7 @@ public class PatchAsmClassReader implements ClassFileTransformer {
 		public void main(moe.xinmu.minecraft_agent.AgentModClassLoader amcl, Instrumentation instrumentation) {
 			System.out.println("Try to read the ClassReader in the agent environment.");
 			try {
-				ClassLoader cl=amcl.getClassLoader();
+				ClassLoader cl = amcl.getClassLoader();
 				Class<?> c = cl.loadClass("org.objectweb.asm.ClassReader");
 				byte[] v = cl.getResourceAsStream("org.objectweb.asm.ClassReader".replace(".", "/") + ".class").readAllBytes();
 				instrumentation.redefineClasses(new ClassDefinition(c, new PatchAsmClassReader().transform(c.getClassLoader(), c.getName(), c, null, v)));

@@ -26,16 +26,11 @@ public class PatchFinalFieldHelper implements ClassFileTransformer {
 			JavaClass jc = new ClassParser(new ByteArrayInputStream(classfileBuffer), className).parse();
 			ClassGen cg = new ClassGen(jc);
 			ConstantPoolGen cpg = cg.getConstantPool();
-//          int outter=cpg.addFieldref("java/lang/System","out","Ljava/io/PrintStream;");
-//          int outrun=cpg.addMethodref("java/io/PrintStream","println","(Ljava/lang/Object;)V");
 			for (Field f : cg.getFields())
 				cg.removeField(f);
 			Method m = cg.getMethodAt(1);
 			Code c = m.getCode();
 			InstructionList il = new InstructionList();
-//            il.append(new GETSTATIC(outter));
-//            il.append(new ALOAD(0));
-//            il.append(new INVOKEVIRTUAL(outrun));
 			il.append(new ALOAD(0));
 			il.append(new ARETURN());
 			c.setMaxStack(2);

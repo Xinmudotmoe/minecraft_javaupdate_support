@@ -35,7 +35,7 @@ public class VersionInitialize implements $Main {
 			cr.accept(new ClassVisitor(Opcodes.ASM5, null) {
 				@Override
 				public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-					if (Type.getReturnType(desc).equals(Type.getType(String.class)))
+					if (Type.getReturnType(desc).equals(Type.getType(String.class))) {
 						return new MethodVisitor(Opcodes.ASM5) {
 							Pattern p = Pattern.compile("1\\.[0-9]{1,2}(\\.[0-9]{1,2})?$");
 
@@ -52,6 +52,7 @@ public class VersionInitialize implements $Main {
 								}
 							}
 						};
+					}
 					return null;
 				}
 			}, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);

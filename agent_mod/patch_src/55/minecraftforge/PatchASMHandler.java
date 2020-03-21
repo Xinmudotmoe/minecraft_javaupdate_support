@@ -25,23 +25,27 @@ public class PatchASMHandler implements ClassFileTransformer {
 						return new MethodVisitor(Opcodes.ASM5, new GeneratorAdapter(mv, access, name, desc)) {
 							@Override
 							public void visitIntInsn(int opcode, int operand) {
-								if (opcode == Opcodes.BIPUSH && operand == 50)
+								if (opcode == Opcodes.BIPUSH && operand == 50) {
 									operand = Utils.getJavaVersion();
+								}
 								super.visitIntInsn(opcode, operand);
 							}
-							boolean change=false;
+
+							boolean change = false;
+
 							@Override
 							public void visitLdcInsn(Object cst) {
-								if(cst instanceof String){
-									if("invoke".equals(cst))
-										change=true;
+								if (cst instanceof String) {
+									if ("invoke".equals(cst)) {
+										change = true;
+									}
 								}
 								super.visitLdcInsn(cst);
 							}
 
 							@Override
 							public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-								if (change&&opcode == Opcodes.INVOKEVIRTUAL && owner.equals("org/objectweb/asm" +
+								if (change && opcode == Opcodes.INVOKEVIRTUAL && owner.equals("org/objectweb/asm" +
 										"/MethodVisitor") && name.equals("visitMethodInsn")) {
 									GeneratorAdapter ga = (GeneratorAdapter) mv;
 									ga.pop();

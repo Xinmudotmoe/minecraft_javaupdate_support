@@ -11,3 +11,5 @@
 [Javax Annotation API](https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api) License: GPL 2.0
 
 [JAXB API](https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api) License: CDDL 1.1
+
+[Pack200](http://jenkins.xinmu.moe/job/Third_party/job/io.pack200/) License: GPL 2.0 [mirrors](http://jenkins.xinmu.moe/job/Third_party/job/io.pack200/)

@@ -11,7 +11,7 @@ public enum ASMVersion {
 	Unknow;
 	public static ASMVersion ASM_Version = Unknow;
 
-	public static boolean chechVersion(ASMVersion a) {
-		return a==ASM_Version;
+	public static boolean checkVersion(ASMVersion a) {
+		return a == ASM_Version;
 	}
 }

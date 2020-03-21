@@ -16,8 +16,9 @@ public class PatchAddPlatformClassLoader implements ClassFileTransformer {
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 							ProtectionDomain protectionDomain, byte[] classfileBuffer) {
 		try {
-			if (cl.loadClass("javax.script.ScriptEngineManager").getClassLoader() != ClassLoader.getPlatformClassLoader())
+			if (cl.loadClass("javax.script.ScriptEngineManager").getClassLoader() != ClassLoader.getPlatformClassLoader()) {
 				return null;
+			}
 		} catch (ClassNotFoundException ignored) {
 		}
 		if (loader == cl) {
@@ -38,14 +39,16 @@ public class PatchAddPlatformClassLoader implements ClassFileTransformer {
 									Type cll = Type.getType(ClassLoader.class);
 									ga.invokeStatic(cll, new Method(
 											"getPlatformClassLoader", cll, new Type[0]));
-								} else
+								} else {
 									super.visitInsn(opcode);
+								}
 							}
 
 							@Override
 							public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-								if (name.equals("<init>"))
+								if (name.equals("<init>")) {
 									flag = false;
+								}
 								super.visitMethodInsn(opcode, owner, name, desc, itf);
 							}
 						};
