@@ -27,8 +27,9 @@ public class DeobfUtils {
 			e.printStackTrace();
 		}
 		String ssss = "";
-		if (iis == null)
-			throw new Error();
+		if (iis == null) {
+			return;
+		}
 		try {
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			byte[] buff = new byte[1024];

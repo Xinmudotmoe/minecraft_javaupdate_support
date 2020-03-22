@@ -1,4 +1,5 @@
 package moe.xinmu.minecraft.patcher;
+
 import java.io.*;
 import java.lang.Deprecated;
 import java.lang.instrument.ClassFileTransformer;
@@ -13,6 +14,7 @@ import org.apache.bcel.generic.*;
 import moe.xinmu.minecraft_agent.*;
 import moe.xinmu.minecraft_agent.annotation.*;
 import javassist.*;
+
 @Deprecated
 /*@TargetClass(
 		"cpw.mods.fml.common.registry.ObjectHolderRef"//TODO Minecraft Forge Legacy
@@ -26,23 +28,24 @@ public class PatchUnsafe implements ClassFileTransformer {
 			ClassGen cg = new ClassGen(jc);
 			ConstantPoolGen cop = cg.getConstantPool();
 			boolean change = false;
-			if (cop.lookupUtf8("sun.reflect.ConstructorAccessor") != -1) {
+			int index;
+			if ((index = cop.lookupUtf8("sun.reflect.ConstructorAccessor")) != -1) {
 				change = true;
-				cop.setConstant(cop.lookupUtf8("sun.reflect.ConstructorAccessor"),
+				cop.setConstant(index,
 						new ConstantUtf8("jdk.internal.reflect.ConstructorAccessor"));
 			}
-			if (cop.lookupUtf8("sun.reflect.ReflectionFactory") != -1) {
+			if ((index = cop.lookupUtf8("sun.reflect.ReflectionFactory")) != -1) {
 				change = true;
-				cop.setConstant(cop.lookupUtf8("sun.reflect.ReflectionFactory"),
+				cop.setConstant(index,
 						new ConstantUtf8("jdk.internal.reflect.ReflectionFactory"));
 			}
-			if (cop.lookupUtf8("sun.reflect.FieldAccessor") != -1) {
+			if ((index = cop.lookupUtf8("sun.reflect.FieldAccessor")) != -1) {
 				change = true;
-				cop.setConstant(cop.lookupUtf8("sun.reflect.FieldAccessor"),
+				cop.setConstant(index,
 						new ConstantUtf8("jdk.internal.reflect.FieldAccessor"));
 			}
 			if (change) {
-				ModuleOpenHelper.OpenModule("java.base","jdk.internal.reflect");
+				ModuleOpenHelper.OpenModule("java.base", "jdk.internal.reflect");
 				return cg.getJavaClass().getBytes();
 			}
 		} catch (Exception e) {

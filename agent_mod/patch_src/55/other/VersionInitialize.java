@@ -16,6 +16,7 @@ import java.net.URLClassLoader;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
+import java.util.Objects;
 
 @Main
 public class VersionInitialize implements $Main {
@@ -63,6 +64,10 @@ public class VersionInitialize implements $Main {
 	public static void init_asm_version() {
 		URL url = new URLClassLoader(Utils.getClassLoaderURLs(), null)
 				.findResource("org/objectweb/asm/ClassWriter.class");
+		if (Objects.isNull(url)) {
+			System.err.println("Not Found ASM In Game.");
+			return;
+		}
 		if (url.getProtocol().equals("jar")) {
 			try {
 				Attributes a = new JarFile(new File(new URI(url.getFile().split("!/")[0])))
