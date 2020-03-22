@@ -24,12 +24,27 @@ public class PatchAsmClassReader implements ClassFileTransformer {
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) {
 		try {
 			ClassGen clazz = new ClassGen(new ClassParser(new ByteArrayInputStream(classfileBuffer), className).parse());
-			Method m = clazz.containsMethod("<init>", "([BII)V");
-			Code code = m.getCode();
-			InstructionList il = new InstructionList(code.getCode());
-			if (DisableASMVersionCheck.change(il)) {
-				code.setCode(il.getByteCode());
-				return clazz.getJavaClass().getBytes();
+			try {
+				Method m = clazz.containsMethod("<init>", "([BII)V");
+				Code code = m.getCode();
+				InstructionList il = new InstructionList(code.getCode());
+				if (DisableASMVersionCheck.change(il)) {
+					code.setCode(il.getByteCode());
+					return clazz.getJavaClass().getBytes();
+				}
+			} catch (Exception e) {
+
+			}
+			try {
+				Method m = clazz.containsMethod("<init>", "([BIZ)V");
+				Code code = m.getCode();
+				InstructionList il = new InstructionList(code.getCode());
+				if (DisableASMVersionCheck.change(il)) {
+					code.setCode(il.getByteCode());
+					return clazz.getJavaClass().getBytes();
+				}
+			} catch (Exception e) {
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
