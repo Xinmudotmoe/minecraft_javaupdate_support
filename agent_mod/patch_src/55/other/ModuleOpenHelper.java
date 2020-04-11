@@ -10,7 +10,8 @@ import moe.xinmu.minecraft_agent.Utils;
 public class ModuleOpenHelper {
 	private static Method implAddOpensToAllUnnamed;
 	private static ModuleLayer moduleLayer = ModuleLayer.boot();
-	private static PrintStream err=System.err;
+	private static PrintStream err = System.err;
+
 	public static void OpenModule(String module, String packageName) {
 		if (implAddOpensToAllUnnamed == null) {
 			try {
@@ -26,13 +27,14 @@ public class ModuleOpenHelper {
 		Module modules;
 		{
 			var a = moduleLayer.findModule(module);
-			if (a.isEmpty())
+			if (a.isEmpty()) {
 				throw new RuntimeException(String.format("Not Found Module `%s`", module));
+			}
 			modules = a.get();
 		}
 		try {
 			implAddOpensToAllUnnamed.invoke(modules, packageName);
-			err.printf("Module `%s` Package `%s` is Open In `%s` .\n",module,packageName,
+			err.printf("Module `%s` Package `%s` is Open In `%s` .\n", module, packageName,
 					new Error().getStackTrace()[1].getClassName());
 		} catch (IllegalAccessException | InvocationTargetException e) {
 			throw new RuntimeException(e);

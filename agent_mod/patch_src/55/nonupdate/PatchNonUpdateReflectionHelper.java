@@ -1,11 +1,19 @@
 package moe.xinmu.minecraft.patcher;
 
+import java.io.ByteArrayInputStream;
+import java.security.ProtectionDomain;
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+
+import org.apache.bcel.classfile.*;
+import org.apache.bcel.generic.*;
+
 import moe.xinmu.minecraft_agent.annotation.*;
 
 @TargetClass(
 		"nonupdate.forge.ReflectionHelper"
 )
-public class PatchNonUpdateReflectionHelper {
+public class PatchNonUpdateReflectionHelper implements ClassFileTransformer  {
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 		try {
